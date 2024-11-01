@@ -1,3 +1,6 @@
+package main.java.voltz.users;
+import java.voltz.assets.Wallet;
+
 public class User {
     private String name;
     private String email;
@@ -5,7 +8,7 @@ public class User {
     private boolean authentication2FA;
     private Wallet wallet;
 
-    public User(String name, String email, String password, boolean authentication2FA) {
+    public Userr(String name, String email, String password, boolean authentication2FA) {
         this.name = name;
         this.email = email;
         this.password = password;

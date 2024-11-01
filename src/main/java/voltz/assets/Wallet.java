@@ -1,3 +1,4 @@
+package main.java.voltz.assets;
 import java.util.ArrayList;
 import java.util.List;
 

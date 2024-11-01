@@ -1,3 +1,5 @@
+package main.java.voltz.companies;
+
 public class Company {
     private String name;
     private double availableBalance;

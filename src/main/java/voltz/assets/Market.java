@@ -1,3 +1,5 @@
+package main.java.voltz.assets;
+
 public class Market {
     private double exchangeRates;
 

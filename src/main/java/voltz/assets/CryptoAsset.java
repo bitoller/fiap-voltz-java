@@ -1,3 +1,5 @@
+package main.java.voltz.assets;
+
 public class CryptoAsset {
     private String name;
     public double quantity;

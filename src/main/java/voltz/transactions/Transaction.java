@@ -1,4 +1,7 @@
+package main.java.voltz.transactions;
 import java.util.Date;
+import main.java.voltz.assets.CryptoAsset;
+import main.java.voltz.assets.Wallet;
 
 public class Transaction {
     private String type;

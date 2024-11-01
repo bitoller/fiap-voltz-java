@@ -1,4 +1,7 @@
+package main.java.voltz.transactions;
 import java.util.List;
+import main.java.voltz.assets.CryptoAsset;
+import main.java.voltz.assets.Wallet;
 
 public class Dashboard {
     private List<Transaction> reports;
