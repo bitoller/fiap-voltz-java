@@ -1,6 +1,7 @@
 package main.java.voltz.assets;
 import java.util.ArrayList;
 import java.util.List;
+import main.java.voltz.transactions.Transaction;
 
 public class Wallet {
     private List<CryptoAsset> cryptoAssets;
