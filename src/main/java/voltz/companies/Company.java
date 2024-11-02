@@ -31,6 +31,12 @@ public class Company {
         return availableBalance;
     }
 
+    public void decreaseBalance(double amount) {
+        if (amount > 0 && availableBalance >= amount) {
+            availableBalance -= amount;
+        }
+    }
+
     public String getBankAccount() {
         return bankAccount;
     }

@@ -1,5 +1,6 @@
 package main.java.voltz.users;
 
+import main.java.voltz.assets.CryptoAsset;
 import main.java.voltz.assets.Wallet;
 import main.java.voltz.companies.Company;
 
@@ -37,28 +38,12 @@ public class User {
     }
 
     public void addCryptoToWallet(String assetName, double amount, double currentPrice) {
-        wallet.addCryptoAsset(assetName, amount, currentPrice);
+        CryptoAsset cryptoAsset = new CryptoAsset(assetName, amount, currentPrice);
+        wallet.addCryptoAsset(cryptoAsset);
     }
 
     public void setCompany(Company company) {
         this.company = company;
-    }
-
-    public double getCompanyBalance() {
-        return (company != null) ? company.checkBalance() : 0.0;
-    }
-
-    public boolean sendAmountFromCompany(double amount) {
-        if (company != null) {
-            return company.sendAmount(amount);
-        } else {
-            System.out.println("Nenhuma empresa associada a este usuário.");
-            return false;
-        }
-    }
-
-    public String getCompanyName() {
-        return (company != null) ? company.getName() : "Nenhuma empresa associada";
     }
 
     public String getName() {
@@ -69,31 +54,27 @@ public class User {
         return email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public boolean isAuthentication2FA() {
         return authentication2FA;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Company getCompany() {
+        return company;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getCompanyName() {
+        return company != null ? company.getName() : "No company associated";
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public double getCompanyBalance() {
+        return company != null ? company.getAvailableBalance() : 0.0;
     }
 
-    public void setAuthentication2FA(boolean authentication2FA) {
-        this.authentication2FA = authentication2FA;
-    }
-
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    public boolean sendAmountFromCompany(double amount) {
+        if (company != null && company.getAvailableBalance() >= amount) {
+            company.decreaseBalance(amount);
+            return true;
+        }
+        return false;
     }
 }

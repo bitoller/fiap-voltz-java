@@ -8,12 +8,20 @@ public class Market {
     }
 
     public void updateQuotations() {
-        // Lógica para atualizar as cotações dos criptoativos
-        // Exemplo: usar APIs externas para obter os dados
-        // e atualizar os valores dos criptoativos na classe Criptoativo
+        // Placeholder for logic to update crypto asset quotations
+        // Example: use external APIs to get data
+        // and update the values of crypto assets in the CryptoAsset class
     }
 
     public void checkCryptoAssetValue(String cryptoAssetName) {
+        // Placeholder for logic to check the value of a specific crypto asset
+    }
 
+    public double getExchangeRates() {
+        return exchangeRates;
+    }
+
+    public void setExchangeRates(double exchangeRates) {
+        this.exchangeRates = exchangeRates;
     }
 }

@@ -21,15 +21,18 @@ public class Transaction {
 
     public synchronized void executeTransaction(Wallet wallet) {
         if (validateTransaction(wallet)) {
-            if (type.equals("buy")) {
-                wallet.updateTotalBalance(-value);
-                cryptoAsset.quantity += quantity;
-            } else if (type.equals("sell")) {
-                wallet.updateTotalBalance(value);
-                cryptoAsset.quantity -= quantity;
-            }
-
+            processTransaction(wallet);
             recordTransaction(wallet);
+        }
+    }
+
+    private void processTransaction(Wallet wallet) {
+        if (type.equals("buy")) {
+            wallet.updateTotalBalance(-value);
+            cryptoAsset.setQuantity(cryptoAsset.getQuantity() + quantity);
+        } else if (type.equals("sell")) {
+            wallet.updateTotalBalance(value);
+            cryptoAsset.setQuantity(cryptoAsset.getQuantity() - quantity);
         }
     }
 
@@ -39,12 +42,11 @@ public class Transaction {
         } else if (type.equals("sell")) {
             return cryptoAsset.getQuantity() >= quantity && quantity > 0;
         }
-
         return false;
     }
 
-    public void recordTransaction(Wallet wallet) {
-        wallet.getTransactions().add(this);
+    private void recordTransaction(Wallet wallet) {
+        wallet.addTransaction(this);
     }
 
     public String getType() {
@@ -65,5 +67,25 @@ public class Transaction {
 
     public CryptoAsset getCryptoAsset() {
         return cryptoAsset;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
+    public void setCryptoAsset(CryptoAsset cryptoAsset) {
+        this.cryptoAsset = cryptoAsset;
     }
 }

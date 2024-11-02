@@ -17,10 +17,12 @@ public class Wallet {
 
     public void addCryptoAsset(CryptoAsset cryptoAsset) {
         this.cryptoAssets.add(cryptoAsset);
+        updateTotalBalance(cryptoAsset.calculateTotalValue());
     }
 
     public void removeCryptoAsset(CryptoAsset cryptoAsset) {
         this.cryptoAssets.remove(cryptoAsset);
+        updateTotalBalance(-cryptoAsset.calculateTotalValue());
     }
 
     public void updateTotalBalance(double value) {
@@ -39,6 +41,19 @@ public class Wallet {
         return totalBalance;
     }
 
-    public void addCryptoAsset(String assetName, double amount, double currentPrice) {
+    public void addTransaction(Transaction transaction) {
+        this.transactions.add(transaction);
+    }
+
+    public void setCryptoAssets(List<CryptoAsset> cryptoAssets) {
+        this.cryptoAssets = cryptoAssets;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public void setTotalBalance(double totalBalance) {
+        this.totalBalance = totalBalance;
     }
 }

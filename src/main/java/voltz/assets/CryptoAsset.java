@@ -2,7 +2,7 @@ package main.java.voltz.assets;
 
 public class CryptoAsset {
     private String name;
-    public double quantity;
+    private double quantity;
     private double currentValue;
 
     public CryptoAsset(String name, double quantity, double currentValue) {
@@ -29,5 +29,17 @@ public class CryptoAsset {
 
     public double getCurrentValue() {
         return currentValue;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setCurrentValue(double currentValue) {
+        this.currentValue = currentValue;
     }
 }
