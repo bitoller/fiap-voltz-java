@@ -15,27 +15,31 @@ public class Main {
             System.out.println("\n--- Menu Principal ---");
             System.out.println("1. Registrar Usuário");
             System.out.println("2. Associar Empresa ao Usuário");
-            System.out.println("3. Adicionar Cripto à Wallet do Usuário");
-            System.out.println("4. Mostrar Informações do Usuário");
-            System.out.println("5. Mostrar Informações da Wallet");
-            System.out.println("6. Mostrar Informações da Empresa");
-            System.out.println("7. Mandar Quantia da Empresa");
+            System.out.println("3. Adicionar Cripto à Carteira do Usuário");
+            System.out.println("4. Exibir Informações do Usuário");
+            System.out.println("5. Exibir Informações da Carteira");
+            System.out.println("6. Exibir Informações da Empresa");
+            System.out.println("7. Enviar Quantia da Empresa");
             System.out.println("8. Sair");
-            System.out.print("Selecione Uma Opção: ");
+            System.out.print("Selecione uma opção: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
-            switch (choice) {
-                case 1 -> user = createUser(scanner);
-                case 2 -> associateCompanyToUser(scanner);
-                case 3 -> addCryptoToUserWallet(scanner);
-                case 4 -> displayUserInfo();
-                case 5 -> displayWalletInfo();
-                case 6 -> displayCompanyInfo();
-                case 7 -> sendAmountFromCompany(scanner);
-                case 8 -> exit = true;
-                default -> System.out.println("Opção Inválida. Tente Novamente.");
+            try {
+                switch (choice) {
+                    case 1 -> user = createUser(scanner);
+                    case 2 -> associateCompanyToUser(scanner);
+                    case 3 -> addCryptoToUserWallet(scanner);
+                    case 4 -> displayUserInfo();
+                    case 5 -> displayWalletInfo();
+                    case 6 -> displayCompanyInfo();
+                    case 7 -> sendAmountFromCompany(scanner);
+                    case 8 -> exit = true;
+                    default -> System.out.println("Opção inválida. Por favor, tente novamente.");
+                }
+            } catch (Exception e) {
+                System.out.println("Ocorreu um erro: " + e.getMessage());
             }
         }
 
@@ -43,13 +47,13 @@ public class Main {
     }
 
     private static User createUser(Scanner scanner) {
-        System.out.print("Digite o Seu Nome: ");
+        System.out.print("Digite o nome: ");
         String name = scanner.nextLine();
-        System.out.print("Digite o Seu Email: ");
+        System.out.print("Digite o email: ");
         String email = scanner.nextLine();
-        System.out.print("Digite a Sua Senha: ");
+        System.out.print("Digite a senha: ");
         String password = scanner.nextLine();
-        System.out.print("Habilitar 2FA? (true/false): ");
+        System.out.print("Habilitar 2FA (true/false): ");
         boolean authentication2FA = scanner.nextBoolean();
         scanner.nextLine();
 
@@ -60,16 +64,16 @@ public class Main {
 
     private static void associateCompanyToUser(Scanner scanner) {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.print("Digite o Nome da Empresa: ");
+        System.out.print("Digite o nome da empresa: ");
         String companyName = scanner.nextLine();
-        System.out.print("Digite o Saldo Disponível: ");
+        System.out.print("Digite o saldo disponível: ");
         double availableBalance = scanner.nextDouble();
         scanner.nextLine();
-        System.out.print("Digite a Conta Bancária: ");
+        System.out.print("Digite a conta bancária: ");
         String bankAccount = scanner.nextLine();
 
         Company company = new Company(companyName, availableBalance, bankAccount);
@@ -78,15 +82,15 @@ public class Main {
 
     private static void addCryptoToUserWallet(Scanner scanner) {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.print("Digite o Nome do Ativo Cripto: ");
+        System.out.print("Digite o nome do criptoativo: ");
         String assetName = scanner.nextLine();
-        System.out.print("Digite a Quantidade: ");
+        System.out.print("Digite a quantidade: ");
         double amount = scanner.nextDouble();
-        System.out.print("Digite o Preço Atual: ");
+        System.out.print("Digite o preço atual: ");
         double currentPrice = scanner.nextDouble();
         scanner.nextLine();
 
@@ -95,43 +99,43 @@ public class Main {
 
     private static void displayUserInfo() {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.println("Informações do Usuário:");
-        System.out.println("Nome: " + user.getName());
-        System.out.println("Email: " + user.getEmail());
+        user.displayInfo();
     }
 
     private static void displayWalletInfo() {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.println("\nInformações da Wallet:");
-        System.out.println("Saldo Total da Wallet: $" + user.getWalletTotalBalance());
+        System.out.println("\nInformações da Carteira:");
+        System.out.println("Saldo Total da Carteira: $" + user.getWalletTotalBalance());
     }
 
     private static void displayCompanyInfo() {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.println("\nInformações da Empresa:");
-        System.out.println("Nome da Empresa: " + user.getCompanyName());
-        System.out.println("Saldo da Empresa: $" + user.getCompanyBalance());
+        if (user.getCompany() != null) {
+            user.getCompany().displayInfo();
+        } else {
+            System.out.println("Nenhuma empresa associada.");
+        }
     }
 
     private static void sendAmountFromCompany(Scanner scanner) {
         if (user == null) {
-            System.out.println("Por Favor, Registre Um Usuário Primeiro.");
+            System.out.println("Por favor, registre um usuário primeiro.");
             return;
         }
 
-        System.out.print("Digite a Quantia a Enviar: ");
+        System.out.print("Digite a quantia a ser enviada: ");
         double amountToSend = scanner.nextDouble();
         scanner.nextLine();
 

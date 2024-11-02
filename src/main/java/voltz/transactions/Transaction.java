@@ -19,6 +19,10 @@ public class Transaction {
         this.cryptoAsset = cryptoAsset;
     }
 
+    public Transaction(String type, double quantity, double value, CryptoAsset cryptoAsset) {
+        this(type, quantity, new Date(), value, cryptoAsset);
+    }
+
     public synchronized void executeTransaction(Wallet wallet) {
         if (validateTransaction(wallet)) {
             processTransaction(wallet);

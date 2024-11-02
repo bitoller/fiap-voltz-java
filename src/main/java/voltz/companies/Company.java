@@ -1,14 +1,21 @@
 package main.java.voltz.companies;
 
-public class Company {
-    private String name;
+import main.java.voltz.entities.Entity;
+
+public class Company extends Entity {
     private double availableBalance;
     private String bankAccount;
 
     public Company(String name, double availableBalance, String bankAccount) {
-        this.name = name;
+        super(name);
         this.availableBalance = availableBalance;
         this.bankAccount = bankAccount;
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("Company Name: " + getName());
+        System.out.println("Available Balance: " + availableBalance);
     }
 
     public boolean sendAmount(double amount) {
@@ -23,10 +30,6 @@ public class Company {
         return availableBalance;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public double getAvailableBalance() {
         return availableBalance;
     }
@@ -39,10 +42,6 @@ public class Company {
 
     public String getBankAccount() {
         return bankAccount;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setAvailableBalance(double availableBalance) {

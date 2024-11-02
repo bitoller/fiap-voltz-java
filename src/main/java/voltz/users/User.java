@@ -3,9 +3,9 @@ package main.java.voltz.users;
 import main.java.voltz.assets.CryptoAsset;
 import main.java.voltz.assets.Wallet;
 import main.java.voltz.companies.Company;
+import main.java.voltz.entities.Entity;
 
-public class User {
-    private String name;
+public class User extends Entity {
     private String email;
     private String password;
     private boolean authentication2FA;
@@ -13,7 +13,7 @@ public class User {
     private Company company;
 
     public User(String name, String email, String password, boolean authentication2FA) {
-        this.name = name;
+        super(name);
         this.email = email;
         this.password = password;
         this.authentication2FA = authentication2FA;
@@ -21,8 +21,14 @@ public class User {
         this.company = null;
     }
 
+    @Override
+    public void displayInfo() {
+        System.out.println("User Name: " + getName());
+        System.out.println("Email: " + email);
+    }
+
     public void register() {
-        System.out.println("Usuário " + name + " registrado com sucesso.\nEmail: " + email);
+        System.out.println("Usuário " + getName() + " registrado com sucesso.\nEmail: " + email);
     }
 
     public boolean login(String email, String password) {
@@ -44,10 +50,6 @@ public class User {
 
     public void setCompany(Company company) {
         this.company = company;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getEmail() {
