@@ -1,8 +1,7 @@
 package main.java.voltz.main;
 
-import main.java.voltz.users.User;
-import main.java.voltz.assets.Wallet;
 import main.java.voltz.companies.Company;
+import main.java.voltz.users.User;
 
 public class Main {
     public static void main(String[] args) {

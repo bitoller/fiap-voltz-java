@@ -1,4 +1,5 @@
 package main.java.voltz.transactions;
+
 import java.util.List;
 import main.java.voltz.assets.CryptoAsset;
 import main.java.voltz.assets.Wallet;
@@ -14,16 +15,18 @@ public class Dashboard {
 
     public void generateChart() {
         // Lógica para gerar o gráfico com base nos dados de transações e criptoativos
-        // Essa parte precisa ser implementada usando uma biblioteca de gráficos (ex: Lucas)
+        // Essa parte precisa ser implementada usando uma biblioteca de gráficos (ex:
+        // Lucas)
         // e ajustada para a sua interface gráfica.
     }
 
     public void viewSummary() {
         System.out.println("Wallet Summary:");
         System.out.println("Total balance: " + wallet.getTotalBalance());
-        
+
         for (CryptoAsset cryptoAsset : wallet.getCryptoAssets()) {
-            System.out.println("CryptoAsset: " + cryptoAsset.getName() + ", Total value: " + cryptoAsset.calculateTotalValue());
+            System.out.println(
+                    "CryptoAsset: " + cryptoAsset.getName() + ", Total value: " + cryptoAsset.calculateTotalValue());
         }
     }
 }

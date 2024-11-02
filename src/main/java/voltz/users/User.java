@@ -16,8 +16,8 @@ public class User {
         this.email = email;
         this.password = password;
         this.authentication2FA = authentication2FA;
-        this.wallet = new Wallet(); // Instancia uma carteira vazia por padrão
-        this.company = null; // Company não é instanciado por padrão
+        this.wallet = new Wallet();
+        this.company = null;
     }
 
     public void register() {
@@ -32,7 +32,6 @@ public class User {
         return this.wallet;
     }
 
-    // Métodos para obter informações de Wallet
     public double getWalletTotalBalance() {
         return wallet.getTotalBalance();
     }
@@ -41,7 +40,6 @@ public class User {
         wallet.addCryptoAsset(assetName, amount, currentPrice);
     }
 
-    // Métodos para Company
     public void setCompany(Company company) {
         this.company = company;
     }
@@ -63,15 +61,39 @@ public class User {
         return (company != null) ? company.getName() : "Nenhuma empresa associada";
     }
 
-    // Getters e Setters para atributos do User
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
-    public boolean isAuthentication2FA() { return authentication2FA; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
-    public void setEmail(String email) { this.email = email; }
-    public void setPassword(String password) { this.password = password; }
-    public void setAuthentication2FA(boolean authentication2FA) { this.authentication2FA = authentication2FA; }
-    public void setWallet(Wallet wallet) { this.wallet = wallet; }
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public boolean isAuthentication2FA() {
+        return authentication2FA;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAuthentication2FA(boolean authentication2FA) {
+        this.authentication2FA = authentication2FA;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }

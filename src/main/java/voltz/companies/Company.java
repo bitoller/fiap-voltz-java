@@ -23,12 +23,27 @@ public class Company {
         return availableBalance;
     }
 
-    // Getters e Setters
-    public String getName() { return name; }
-    public double getAvailableBalance() { return availableBalance; }
-    public String getBankAccount() { return bankAccount; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
-    public void setAvailableBalance(double availableBalance) { this.availableBalance = availableBalance; }
-    public void setBankAccount(String bankAccount) { this.bankAccount = bankAccount; }
+    public double getAvailableBalance() {
+        return availableBalance;
+    }
+
+    public String getBankAccount() {
+        return bankAccount;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAvailableBalance(double availableBalance) {
+        this.availableBalance = availableBalance;
+    }
+
+    public void setBankAccount(String bankAccount) {
+        this.bankAccount = bankAccount;
+    }
 }
