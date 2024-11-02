@@ -1,8 +1,8 @@
 package main.java.voltz.users;
 
-import main.java.voltz.assets.CryptoAsset;
-import main.java.voltz.assets.Wallet;
 import main.java.voltz.companies.Company;
+import main.java.voltz.crypto.CryptoAsset;
+import main.java.voltz.crypto.Wallet;
 import main.java.voltz.entities.Entity;
 
 public class User extends Entity {
@@ -23,7 +23,7 @@ public class User extends Entity {
 
     @Override
     public void displayInfo() {
-        System.out.println("User Name: " + getName());
+        System.out.println("Nome do Usuário: " + getName());
         System.out.println("Email: " + email);
     }
 
@@ -39,37 +39,13 @@ public class User extends Entity {
         return this.wallet;
     }
 
-    public double getWalletTotalBalance() {
-        return wallet.getTotalBalance();
-    }
-
     public void addCryptoToWallet(String assetName, double amount, double currentPrice) {
         CryptoAsset cryptoAsset = new CryptoAsset(assetName, amount, currentPrice);
         wallet.addCryptoAsset(cryptoAsset);
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     public boolean isAuthentication2FA() {
         return authentication2FA;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public String getCompanyName() {
-        return company != null ? company.getName() : "No company associated";
-    }
-
-    public double getCompanyBalance() {
-        return company != null ? company.getAvailableBalance() : 0.0;
     }
 
     public boolean sendAmountFromCompany(double amount) {
@@ -78,5 +54,29 @@ public class User extends Entity {
             return true;
         }
         return false;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public String getCompanyName() {
+        return company != null ? company.getName() : "Nenhuma empresa associada";
+    }
+
+    public double getCompanyBalance() {
+        return company != null ? company.getAvailableBalance() : 0.0;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public double getWalletTotalBalance() {
+        return wallet.getTotalBalance();
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

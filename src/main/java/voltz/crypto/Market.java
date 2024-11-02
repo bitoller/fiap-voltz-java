@@ -1,4 +1,4 @@
-package main.java.voltz.assets;
+package main.java.voltz.crypto;
 
 public class Market {
     private double exchangeRates;
@@ -8,13 +8,12 @@ public class Market {
     }
 
     public void updateQuotations() {
-        // Placeholder for logic to update crypto asset quotations
-        // Example: use external APIs to get data
-        // and update the values of crypto assets in the CryptoAsset class
+        // Espaço reservado para a lógica de atualização das cotações de criptoativos
+        // Usar APIs externas para obter dados e atualizar os valores dos criptoativos na classe CryptoAsset
     }
 
     public void checkCryptoAssetValue(String cryptoAssetName) {
-        // Placeholder for logic to check the value of a specific crypto asset
+        // Espaço reservado para a lógica de verificação do valor de um criptoativo específico
     }
 
     public double getExchangeRates() {

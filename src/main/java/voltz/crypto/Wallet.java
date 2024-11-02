@@ -1,4 +1,4 @@
-package main.java.voltz.assets;
+package main.java.voltz.crypto;
 
 import java.util.ArrayList;
 import java.util.List;

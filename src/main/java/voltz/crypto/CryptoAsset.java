@@ -1,4 +1,4 @@
-package main.java.voltz.assets;
+package main.java.voltz.crypto;
 
 public class CryptoAsset {
     private String name;

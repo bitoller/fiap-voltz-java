@@ -1,8 +1,8 @@
 package main.java.voltz.transactions;
 
 import java.util.List;
-import main.java.voltz.assets.CryptoAsset;
-import main.java.voltz.assets.Wallet;
+import main.java.voltz.crypto.CryptoAsset;
+import main.java.voltz.crypto.Wallet;
 
 public class Dashboard {
     private List<Transaction> reports;
@@ -14,9 +14,8 @@ public class Dashboard {
     }
 
     public void generateChart() {
-        // Placeholder for chart generation logic
-        // This part needs to be implemented using a chart library (e.g., JFreeChart)
-        // and adjusted for your graphical interface.
+        // Espaço reservado para a lógica de geração de gráficos
+        // Esta parte precisa ser implementada usando uma biblioteca de gráficos (por exemplo, JFreeChart)
     }
 
     public void viewSummary() {
@@ -25,14 +24,14 @@ public class Dashboard {
     }
 
     private void displayWalletSummary() {
-        System.out.println("Wallet Summary:");
-        System.out.println("Total balance: " + wallet.getTotalBalance());
+        System.out.println("Resumo da Carteira:");
+        System.out.println("Saldo total: " + wallet.getTotalBalance());
     }
 
     private void displayCryptoAssetsSummary() {
         for (CryptoAsset cryptoAsset : wallet.getCryptoAssets()) {
             System.out.println(
-                    "CryptoAsset: " + cryptoAsset.getName() + ", Total value: " + cryptoAsset.calculateTotalValue());
+                    "Criptoativo: " + cryptoAsset.getName() + ", Valor total: " + cryptoAsset.calculateTotalValue());
         }
     }
 
@@ -40,20 +39,20 @@ public class Dashboard {
         return reports;
     }
 
-    public void setReports(List<Transaction> reports) {
-        this.reports = reports;
-    }
-
     public List<Double> getVariationChart() {
         return variationChart;
     }
 
-    public void setVariationChart(List<Double> variationChart) {
-        this.variationChart = variationChart;
-    }
-
     public Wallet getWallet() {
         return wallet;
+    }
+
+    public void setReports(List<Transaction> reports) {
+        this.reports = reports;
+    }
+
+    public void setVariationChart(List<Double> variationChart) {
+        this.variationChart = variationChart;
     }
 
     public void setWallet(Wallet wallet) {

@@ -14,8 +14,8 @@ public class Company extends Entity {
 
     @Override
     public void displayInfo() {
-        System.out.println("Company Name: " + getName());
-        System.out.println("Available Balance: " + availableBalance);
+        System.out.println("Nome da Empresa: " + getName());
+        System.out.println("Saldo Disponível: " + availableBalance);
     }
 
     public boolean sendAmount(double amount) {
@@ -34,14 +34,14 @@ public class Company extends Entity {
         return availableBalance;
     }
 
+    public String getBankAccount() {
+        return bankAccount;
+    }
+
     public void decreaseBalance(double amount) {
         if (amount > 0 && availableBalance >= amount) {
             availableBalance -= amount;
         }
-    }
-
-    public String getBankAccount() {
-        return bankAccount;
     }
 
     public void setAvailableBalance(double availableBalance) {
