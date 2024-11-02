@@ -2,15 +2,13 @@ package main.java.voltz.assets;
 import java.util.ArrayList;
 import java.util.List;
 import main.java.voltz.transactions.Transaction;
-import main.java.voltz.users.User;
 
-public class Wallet extends User {
+public class Wallet {
     private List<CryptoAsset> cryptoAssets;
     private List<Transaction> transactions;
     private double totalBalance;
 
     public Wallet(String firstName, String lastName, String email, boolean isActive) {
-        super(firstName, lastName, email, isActive);
         this.cryptoAssets = new ArrayList<>();
         this.transactions = new ArrayList<>();
         this.totalBalance = 0.0;

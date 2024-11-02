@@ -20,6 +20,7 @@ public class User {
     }
 
     public void register() {
+        System.out.println("FUNCIONOU");
     }
 
     public boolean login(String email, String password) {
