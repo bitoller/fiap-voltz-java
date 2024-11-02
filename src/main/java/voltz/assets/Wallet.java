@@ -1,4 +1,5 @@
 package main.java.voltz.assets;
+
 import java.util.ArrayList;
 import java.util.List;
 import main.java.voltz.transactions.Transaction;
@@ -8,7 +9,7 @@ public class Wallet {
     private List<Transaction> transactions;
     private double totalBalance;
 
-    public Wallet(String firstName, String lastName, String email, boolean isActive) {
+    public Wallet() {
         this.cryptoAssets = new ArrayList<>();
         this.transactions = new ArrayList<>();
         this.totalBalance = 0.0;
@@ -36,5 +37,8 @@ public class Wallet {
 
     public double getTotalBalance() {
         return totalBalance;
+    }
+
+    public void addCryptoAsset(String assetName, double amount, double currentPrice) {
     }
 }

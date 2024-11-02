@@ -15,12 +15,20 @@ public class Company {
         if (amount > 0 && amount <= availableBalance) {
             availableBalance -= amount;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public double checkBalance() {
         return availableBalance;
     }
+
+    // Getters e Setters
+    public String getName() { return name; }
+    public double getAvailableBalance() { return availableBalance; }
+    public String getBankAccount() { return bankAccount; }
+
+    public void setName(String name) { this.name = name; }
+    public void setAvailableBalance(double availableBalance) { this.availableBalance = availableBalance; }
+    public void setBankAccount(String bankAccount) { this.bankAccount = bankAccount; }
 }
