@@ -1,11 +1,18 @@
 package main.java.voltz.main;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import main.java.voltz.companies.Company;
 import main.java.voltz.users.User;
 
 public class Main {
     private static User user;
+    private static ArrayList<User> users = new ArrayList<>();
+    private static HashMap<String, Company> companies = new HashMap<>();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -20,7 +27,8 @@ public class Main {
             System.out.println("5. Exibir Informações da Carteira");
             System.out.println("6. Exibir Informações da Empresa");
             System.out.println("7. Enviar Quantia da Empresa");
-            System.out.println("8. Sair");
+            System.out.println("8. Salvar Dados em Arquivo");
+            System.out.println("9. Sair");
             System.out.print("Selecione uma opção: ");
 
             int choice = scanner.nextInt();
@@ -35,7 +43,8 @@ public class Main {
                     case 5 -> displayWalletInfo();
                     case 6 -> displayCompanyInfo();
                     case 7 -> sendAmountFromCompany(scanner);
-                    case 8 -> exit = true;
+                    case 8 -> saveDataToFile();
+                    case 9 -> exit = true;
                     default -> System.out.println("Opção inválida. Por favor, tente novamente.");
                 }
             } catch (Exception e) {
@@ -59,6 +68,7 @@ public class Main {
 
         User user = new User(name, email, password, authentication2FA);
         user.register();
+        users.add(user);
         return user;
     }
 
@@ -78,6 +88,7 @@ public class Main {
 
         Company company = new Company(companyName, availableBalance, bankAccount);
         user.setCompany(company);
+        companies.put(companyName, company);
     }
 
     private static void addCryptoToUserWallet(Scanner scanner) {
@@ -144,6 +155,24 @@ public class Main {
             System.out.println("Novo saldo da Empresa: $" + user.getCompanyBalance());
         } else {
             System.out.println("\nEnvio de $" + amountToSend + " da empresa falhou.");
+        }
+    }
+
+    private static void saveDataToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data.txt"))) {
+            writer.write("Usuários:\n");
+            for (User user : users) {
+                writer.write("Nome: " + user.getName() + ", Email: " + user.getEmail() + "\n");
+            }
+
+            writer.write("\nEmpresas:\n");
+            for (Company company : companies.values()) {
+                writer.write("Nome: " + company.getName() + ", Saldo Disponível: " + company.getAvailableBalance() + "\n");
+            }
+
+            System.out.println("Dados salvos em data.txt");
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar dados: " + e.getMessage());
         }
     }
 }
