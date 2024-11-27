@@ -26,10 +26,6 @@ public class Company extends Entity {
         return false;
     }
 
-    public double checkBalance() {
-        return availableBalance;
-    }
-
     public double getAvailableBalance() {
         return availableBalance;
     }
