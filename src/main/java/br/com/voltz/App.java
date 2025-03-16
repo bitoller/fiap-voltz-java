@@ -1,20 +1,18 @@
 package br.com.voltz;
 
-import br.com.voltz.companies.Company;
-import br.com.voltz.factory.ConnectionFactory;
-import br.com.voltz.users.User;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+
+import br.com.voltz.companies.Company;
+import br.com.voltz.factory.ConnectionFactory;
+import br.com.voltz.users.User;
 
 public class App {
 
@@ -26,7 +24,7 @@ public class App {
 
         try {
             Connection connection = ConnectionFactory.getConnection();
-            System.out.println("Conexão realizada!");
+            System.out.println("Successfully Connected!");
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -93,6 +91,7 @@ public class App {
 
         try {
             Connection connection = ConnectionFactory.getConnection();
+
             if (user.saveToDatabase(connection)) {
                 System.out.println("Usuário salvo no banco de dados com sucesso!");
             } else {
@@ -206,13 +205,16 @@ public class App {
     private static void saveDataToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("data.txt"))) {
             writer.write("Usuários:\n");
+
             for (User user : users) {
                 writer.write("Nome: " + user.getName() + ", Email: " + user.getEmail() + "\n");
             }
 
             writer.write("\nEmpresas:\n");
+
             for (Company company : companies.values()) {
-                writer.write("Nome: " + company.getName() + ", Saldo Disponível: " + company.getAvailableBalance() + "\n");
+                writer.write(
+                        "Nome: " + company.getName() + ", Saldo Disponível: " + company.getAvailableBalance() + "\n");
             }
 
             System.out.println("Dados salvos em data.txt");
@@ -240,7 +242,7 @@ public class App {
     private static void editUser(Scanner scanner) {
         System.out.print("Digite o ID do usuário que deseja editar: ");
         int userId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
 
         User selectedUser = User.getUserById(userId);
         if (selectedUser == null) {
@@ -278,7 +280,7 @@ public class App {
     private static void deleteUser(Scanner scanner) {
         System.out.print("Digite o ID do usuário que deseja deletar: ");
         int userId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
 
         try {
             Connection connection = ConnectionFactory.getConnection();

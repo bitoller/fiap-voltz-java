@@ -1,10 +1,10 @@
 package br.com.voltz.companies;
 
-import br.com.voltz.entities.Entity;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import br.com.voltz.entities.Entity;
 
 public class Company extends Entity {
     private double availableBalance;
@@ -54,6 +54,7 @@ public class Company extends Entity {
 
     public boolean saveToDatabase(Connection connection) throws SQLException {
         String sql = "INSERT INTO companies (id, name, available_balance, bank_account) VALUES (company_seq.NEXTVAL, ?, ?, ?)";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, this.getName());
             statement.setDouble(2, this.availableBalance);
