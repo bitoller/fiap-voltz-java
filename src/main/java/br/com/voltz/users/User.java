@@ -1,17 +1,17 @@
 package br.com.voltz.users;
 
-import br.com.voltz.companies.Company;
-import br.com.voltz.crypto.CryptoAsset;
-import br.com.voltz.crypto.Wallet;
-import br.com.voltz.entities.Entity;
-import br.com.voltz.factory.ConnectionFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import br.com.voltz.companies.Company;
+import br.com.voltz.crypto.CryptoAsset;
+import br.com.voltz.crypto.Wallet;
+import br.com.voltz.entities.Entity;
+import br.com.voltz.factory.ConnectionFactory;
 
 public class User extends Entity {
     private String email;
@@ -102,6 +102,7 @@ public class User extends Entity {
 
     public boolean saveToDatabase(Connection connection) throws SQLException {
         String sql = "INSERT INTO users (id, name, email, password, authentication2FA) VALUES (user_seq.NEXTVAL, ?, ?, ?, ?)";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, this.getName());
             statement.setString(2, this.email);
@@ -120,7 +121,9 @@ public class User extends Entity {
         if (this.company == null) {
             return false;
         }
+
         String sql = "INSERT INTO user_companies (user_id, company_id) VALUES (?, ?)";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, this.getId());
             statement.setInt(2, this.company.getId());
@@ -135,6 +138,7 @@ public class User extends Entity {
 
     public static List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
+
         try {
             Connection connection = ConnectionFactory.getConnection();
             String query = "SELECT id, name, email FROM users";
@@ -145,7 +149,7 @@ public class User extends Entity {
                 int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
                 String email = resultSet.getString("email");
-                User user = new User(name, email, null, false); // Assuming password and 2FA are not needed here
+                User user = new User(name, email, null, false);
                 user.setId(id);
                 userList.add(user);
             }
@@ -161,6 +165,7 @@ public class User extends Entity {
 
     public boolean updateUserInDatabase(Connection connection) throws SQLException {
         String sql = "UPDATE users SET name = ?, email = ?, password = ?, authentication2FA = ? WHERE id = ?";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, this.getName());
             statement.setString(2, this.email);
@@ -205,6 +210,7 @@ public class User extends Entity {
 
     public static boolean deleteUserById(Connection connection, int userId) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
             int rowsAffected = statement.executeUpdate();
