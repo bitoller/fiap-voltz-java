@@ -13,7 +13,7 @@ public class ConnectionFactory {
 
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) TimeUnit.MINUTES.toMillis(2));
+        connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) TimeUnit.MINUTES.toMillis(5));
         return connection;
     }
 }
