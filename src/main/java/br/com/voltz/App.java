@@ -8,9 +8,12 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class App {
@@ -41,7 +44,10 @@ public class App {
             System.out.println("6. Exibir Informações da Empresa");
             System.out.println("7. Enviar Quantia da Empresa");
             System.out.println("8. Salvar Dados em Arquivo");
-            System.out.println("9. Sair");
+            System.out.println("9. Listar Todos os Usuários ** (Apenas para Teste) **");
+            System.out.println("10. Editar Usuário");
+            System.out.println("11. Deletar Usuário");
+            System.out.println("12. Sair");
             System.out.print("Selecione uma opção: ");
 
             int choice = scanner.nextInt();
@@ -57,7 +63,10 @@ public class App {
                     case 6 -> displayCompanyInfo();
                     case 7 -> sendAmountFromCompany(scanner);
                     case 8 -> saveDataToFile();
-                    case 9 -> exit = true;
+                    case 9 -> listAllUsers();
+                    case 10 -> editUser(scanner);
+                    case 11 -> deleteUser(scanner);
+                    case 12 -> exit = true;
                     default -> System.out.println("Opção inválida. Por favor, tente novamente.");
                 }
             } catch (Exception e) {
@@ -81,6 +90,18 @@ public class App {
         User user = new User(name, email, password, authentication2FA);
         user.register();
         users.add(user);
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            if (user.saveToDatabase(connection)) {
+                System.out.println("Usuário salvo no banco de dados com sucesso!");
+            } else {
+                System.out.println("Falha ao salvar usuário no banco de dados.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao salvar usuário no banco de dados: " + e.getMessage());
+        }
+
         return user;
     }
 
@@ -101,6 +122,17 @@ public class App {
         Company company = new Company(companyName, availableBalance, bankAccount);
         user.setCompany(company);
         companies.put(companyName, company);
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            if (company.saveToDatabase(connection) && user.saveCompanyToDatabase(connection)) {
+                System.out.println("Empresa associada ao usuário com sucesso!");
+            } else {
+                System.out.println("Falha ao associar empresa ao usuário.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao associar empresa ao usuário no banco de dados: " + e.getMessage());
+        }
     }
 
     private static void addCryptoToUserWallet(Scanner scanner) {
@@ -118,6 +150,7 @@ public class App {
         scanner.nextLine();
 
         user.addCryptoToWallet(assetName, amount, currentPrice);
+        System.out.println("Criptoativo adicionado à carteira com sucesso!");
     }
 
     private static void displayUserInfo() {
@@ -185,6 +218,77 @@ public class App {
             System.out.println("Dados salvos em data.txt");
         } catch (IOException e) {
             System.out.println("Erro ao salvar dados: " + e.getMessage());
+        }
+    }
+
+    private static void listAllUsers() {
+        System.out.println("** Alerta: Esta exibição é apenas para teste do professor. **");
+
+        List<User> userList = User.getAllUsers();
+
+        if (userList.isEmpty()) {
+            System.out.println("Nenhum usuário registrado.");
+            return;
+        }
+
+        System.out.println("\n--- Lista de Usuários ---");
+        for (User user : userList) {
+            System.out.println("ID: " + user.getId() + ", Nome: " + user.getName() + ", Email: " + user.getEmail());
+        }
+    }
+
+    private static void editUser(Scanner scanner) {
+        System.out.print("Digite o ID do usuário que deseja editar: ");
+        int userId = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        User selectedUser = User.getUserById(userId);
+        if (selectedUser == null) {
+            System.out.println("Usuário não encontrado.");
+            return;
+        }
+
+        System.out.print("Digite o novo nome: ");
+        String newName = scanner.nextLine();
+        System.out.print("Digite o novo email: ");
+        String newEmail = scanner.nextLine();
+        System.out.print("Digite a nova senha: ");
+        String newPassword = scanner.nextLine();
+        System.out.print("Habilitar 2FA (true/false): ");
+        boolean newAuthentication2FA = scanner.nextBoolean();
+        scanner.nextLine();
+
+        selectedUser.setName(newName);
+        selectedUser.setEmail(newEmail);
+        selectedUser.setPassword(newPassword);
+        selectedUser.setAuthentication2FA(newAuthentication2FA);
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            if (selectedUser.updateUserInDatabase(connection)) {
+                System.out.println("Usuário atualizado no banco de dados com sucesso!");
+            } else {
+                System.out.println("Falha ao atualizar usuário no banco de dados.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar usuário no banco de dados: " + e.getMessage());
+        }
+    }
+
+    private static void deleteUser(Scanner scanner) {
+        System.out.print("Digite o ID do usuário que deseja deletar: ");
+        int userId = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            if (User.deleteUserById(connection, userId)) {
+                System.out.println("Usuário deletado com sucesso!");
+            } else {
+                System.out.println("Falha ao deletar usuário.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao deletar usuário no banco de dados: " + e.getMessage());
         }
     }
 }
