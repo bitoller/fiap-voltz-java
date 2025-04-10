@@ -1,17 +1,9 @@
 package br.com.voltz.users;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import br.com.voltz.companies.Company;
 import br.com.voltz.crypto.CryptoAsset;
 import br.com.voltz.crypto.Wallet;
 import br.com.voltz.entities.Entity;
-import br.com.voltz.factory.ConnectionFactory;
 
 public class User extends Entity {
     private String email;
@@ -100,7 +92,7 @@ public class User extends Entity {
         this.company = company;
     }
 
-    public boolean saveToDatabase(Connection connection) throws SQLException {
+    /* public boolean saveToDatabase(Connection connection) throws SQLException {
         String sql = "INSERT INTO users (id, name, email, password, authentication2FA) VALUES (user_seq.NEXTVAL, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -115,9 +107,9 @@ public class User extends Entity {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
-    }
+    } */
 
-    public boolean saveCompanyToDatabase(Connection connection) throws SQLException {
+    /* public boolean saveCompanyToDatabase(Connection connection) throws SQLException {
         if (this.company == null) {
             return false;
         }
@@ -134,9 +126,9 @@ public class User extends Entity {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
-    }
+    } */
 
-    public static List<User> getAllUsers() {
+    /* public static List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
 
         try {
@@ -161,9 +153,9 @@ public class User extends Entity {
             System.out.println("Erro ao buscar usuários no banco de dados: " + e.getMessage());
         }
         return userList;
-    }
+    } */
 
-    public boolean updateUserInDatabase(Connection connection) throws SQLException {
+    /* public boolean updateUserInDatabase(Connection connection) throws SQLException {
         String sql = "UPDATE users SET name = ?, email = ?, password = ?, authentication2FA = ? WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -179,9 +171,9 @@ public class User extends Entity {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
-    }
+    } */
 
-    public static User getUserById(int userId) {
+    /* public static User getUserById(int userId) {
         try {
             Connection connection = ConnectionFactory.getConnection();
             String query = "SELECT id, name, email, password, authentication2FA FROM users WHERE id = ?";
@@ -206,9 +198,9 @@ public class User extends Entity {
             System.out.println("Erro ao buscar usuário no banco de dados: " + e.getMessage());
         }
         return null;
-    }
+    } */
 
-    public static boolean deleteUserById(Connection connection, int userId) throws SQLException {
+    /* public static boolean deleteUserById(Connection connection, int userId) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -220,6 +212,6 @@ public class User extends Entity {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
-    }
+    } */
 
 }

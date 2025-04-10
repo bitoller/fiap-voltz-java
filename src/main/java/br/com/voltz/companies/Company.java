@@ -1,9 +1,5 @@
 package br.com.voltz.companies;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import br.com.voltz.entities.Entity;
 
 public class Company extends Entity {
@@ -52,7 +48,7 @@ public class Company extends Entity {
         this.bankAccount = bankAccount;
     }
 
-    public boolean saveToDatabase(Connection connection) throws SQLException {
+    /* public boolean saveToDatabase(Connection connection) throws SQLException {
         String sql = "INSERT INTO companies (id, name, available_balance, bank_account) VALUES (company_seq.NEXTVAL, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -66,5 +62,5 @@ public class Company extends Entity {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
-    }
+    } */
 }

@@ -3,7 +3,6 @@ package br.com.voltz;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +10,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import br.com.voltz.companies.Company;
-import br.com.voltz.factory.ConnectionFactory;
+import br.com.voltz.dao.CompanyDao;
+import br.com.voltz.dao.UserDao;
 import br.com.voltz.users.User;
 
 public class App {
@@ -21,14 +21,6 @@ public class App {
     private static HashMap<String, Company> companies = new HashMap<>();
 
     public static void main(String[] args) {
-
-        try {
-            Connection connection = ConnectionFactory.getConnection();
-            System.out.println("Successfully Connected!");
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-        }
-
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
 
@@ -86,13 +78,11 @@ public class App {
         scanner.nextLine();
 
         User user = new User(name, email, password, authentication2FA);
-        user.register();
         users.add(user);
 
         try {
-            Connection connection = ConnectionFactory.getConnection();
-
-            if (user.saveToDatabase(connection)) {
+            UserDao userDao = new UserDao();
+            if (userDao.insert(user)) {
                 System.out.println("Usuário salvo no banco de dados com sucesso!");
             } else {
                 System.out.println("Falha ao salvar usuário no banco de dados.");
@@ -123,8 +113,8 @@ public class App {
         companies.put(companyName, company);
 
         try {
-            Connection connection = ConnectionFactory.getConnection();
-            if (company.saveToDatabase(connection) && user.saveCompanyToDatabase(connection)) {
+            CompanyDao companyDao = new CompanyDao();
+            if (companyDao.insert(company)) {
                 System.out.println("Empresa associada ao usuário com sucesso!");
             } else {
                 System.out.println("Falha ao associar empresa ao usuário.");
@@ -134,108 +124,24 @@ public class App {
         }
     }
 
-    private static void addCryptoToUserWallet(Scanner scanner) {
-        if (user == null) {
-            System.out.println("Por favor, registre um usuário primeiro.");
-            return;
-        }
-
-        System.out.print("Digite o nome do criptoativo: ");
-        String assetName = scanner.nextLine();
-        System.out.print("Digite a quantidade: ");
-        double amount = scanner.nextDouble();
-        System.out.print("Digite o preço atual: ");
-        double currentPrice = scanner.nextDouble();
-        scanner.nextLine();
-
-        user.addCryptoToWallet(assetName, amount, currentPrice);
-        System.out.println("Criptoativo adicionado à carteira com sucesso!");
-    }
-
-    private static void displayUserInfo() {
-        if (user == null) {
-            System.out.println("Por favor, registre um usuário primeiro.");
-            return;
-        }
-
-        user.displayInfo();
-    }
-
-    private static void displayWalletInfo() {
-        if (user == null) {
-            System.out.println("Por favor, registre um usuário primeiro.");
-            return;
-        }
-
-        System.out.println("\nInformações da Carteira:");
-        System.out.println("Saldo Total da Carteira: $" + user.getWalletTotalBalance());
-    }
-
-    private static void displayCompanyInfo() {
-        if (user == null) {
-            System.out.println("Por favor, registre um usuário primeiro.");
-            return;
-        }
-
-        if (user.getCompany() != null) {
-            user.getCompany().displayInfo();
-        } else {
-            System.out.println("Nenhuma empresa associada.");
-        }
-    }
-
-    private static void sendAmountFromCompany(Scanner scanner) {
-        if (user == null) {
-            System.out.println("Por favor, registre um usuário primeiro.");
-            return;
-        }
-
-        System.out.print("Digite a quantia a ser enviada: ");
-        double amountToSend = scanner.nextDouble();
-        scanner.nextLine();
-
-        if (user.sendAmountFromCompany(amountToSend)) {
-            System.out.println("\nEnvio de $" + amountToSend + " da empresa foi bem-sucedido.");
-            System.out.println("Novo saldo da Empresa: $" + user.getCompanyBalance());
-        } else {
-            System.out.println("\nEnvio de $" + amountToSend + " da empresa falhou.");
-        }
-    }
-
-    private static void saveDataToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data.txt"))) {
-            writer.write("Usuários:\n");
-
-            for (User user : users) {
-                writer.write("Nome: " + user.getName() + ", Email: " + user.getEmail() + "\n");
-            }
-
-            writer.write("\nEmpresas:\n");
-
-            for (Company company : companies.values()) {
-                writer.write(
-                        "Nome: " + company.getName() + ", Saldo Disponível: " + company.getAvailableBalance() + "\n");
-            }
-
-            System.out.println("Dados salvos em data.txt");
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar dados: " + e.getMessage());
-        }
-    }
-
     private static void listAllUsers() {
         System.out.println("** Alerta: Esta exibição é apenas para teste do professor. **");
 
-        List<User> userList = User.getAllUsers();
+        try {
+            UserDao userDao = new UserDao();
+            List<User> userList = userDao.findAll();
 
-        if (userList.isEmpty()) {
-            System.out.println("Nenhum usuário registrado.");
-            return;
-        }
+            if (userList.isEmpty()) {
+                System.out.println("Nenhum usuário registrado.");
+                return;
+            }
 
-        System.out.println("\n--- Lista de Usuários ---");
-        for (User user : userList) {
-            System.out.println("ID: " + user.getId() + ", Nome: " + user.getName() + ", Email: " + user.getEmail());
+            System.out.println("\n--- Lista de Usuários ---");
+            for (User user : userList) {
+                System.out.println("ID: " + user.getId() + ", Nome: " + user.getName() + ", Email: " + user.getEmail());
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar usuários no banco de dados: " + e.getMessage());
         }
     }
 
@@ -244,30 +150,31 @@ public class App {
         int userId = scanner.nextInt();
         scanner.nextLine();
 
-        User selectedUser = User.getUserById(userId);
-        if (selectedUser == null) {
-            System.out.println("Usuário não encontrado.");
-            return;
-        }
-
-        System.out.print("Digite o novo nome: ");
-        String newName = scanner.nextLine();
-        System.out.print("Digite o novo email: ");
-        String newEmail = scanner.nextLine();
-        System.out.print("Digite a nova senha: ");
-        String newPassword = scanner.nextLine();
-        System.out.print("Habilitar 2FA (true/false): ");
-        boolean newAuthentication2FA = scanner.nextBoolean();
-        scanner.nextLine();
-
-        selectedUser.setName(newName);
-        selectedUser.setEmail(newEmail);
-        selectedUser.setPassword(newPassword);
-        selectedUser.setAuthentication2FA(newAuthentication2FA);
-
         try {
-            Connection connection = ConnectionFactory.getConnection();
-            if (selectedUser.updateUserInDatabase(connection)) {
+            UserDao userDao = new UserDao();
+            User selectedUser = userDao.findById(userId);
+
+            if (selectedUser == null) {
+                System.out.println("Usuário não encontrado.");
+                return;
+            }
+
+            System.out.print("Digite o novo nome: ");
+            String newName = scanner.nextLine();
+            System.out.print("Digite o novo email: ");
+            String newEmail = scanner.nextLine();
+            System.out.print("Digite a nova senha: ");
+            String newPassword = scanner.nextLine();
+            System.out.print("Habilitar 2FA (true/false): ");
+            boolean newAuthentication2FA = scanner.nextBoolean();
+            scanner.nextLine();
+
+            selectedUser.setName(newName);
+            selectedUser.setEmail(newEmail);
+            selectedUser.setPassword(newPassword);
+            selectedUser.setAuthentication2FA(newAuthentication2FA);
+
+            if (userDao.update(selectedUser)) {
                 System.out.println("Usuário atualizado no banco de dados com sucesso!");
             } else {
                 System.out.println("Falha ao atualizar usuário no banco de dados.");
@@ -283,8 +190,8 @@ public class App {
         scanner.nextLine();
 
         try {
-            Connection connection = ConnectionFactory.getConnection();
-            if (User.deleteUserById(connection, userId)) {
+            UserDao userDao = new UserDao();
+            if (userDao.delete(userId)) {
                 System.out.println("Usuário deletado com sucesso!");
             } else {
                 System.out.println("Falha ao deletar usuário.");
