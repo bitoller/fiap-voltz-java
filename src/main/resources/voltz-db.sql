@@ -53,9 +53,9 @@ CREATE TABLE users
     CONSTRAINT ck_users_active CHECK (users.active IN ('S', 'N'))
 );
 COMMENT
-ON COLUMN users.senha IS 'Hash da senha gerado com BCrypt';
+ON COLUMN users.password IS 'Hash da senha gerado com BCrypt';
 COMMENT
-ON COLUMN users.ativo IS 'S=Ativo, N=Inativo';
+ON COLUMN users.active IS 'S=Ativo, N=Inativo';
 
 -- Tabela: wallets
 CREATE TABLE wallets
