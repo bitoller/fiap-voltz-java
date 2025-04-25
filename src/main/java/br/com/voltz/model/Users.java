@@ -1,9 +1,10 @@
 package br.com.voltz.model;
 
-import br.com.voltz.adapter.LocalDateTimeAdapter;
+import java.time.LocalDateTime;
+
 import com.google.gson.annotations.JsonAdapter;
 
-import java.time.LocalDateTime;
+import br.com.voltz.adapter.LocalDateTimeAdapter;
 
 public class Users {
     private int id;
@@ -124,6 +125,7 @@ public class Users {
         } else if (this.cpfCnpj.length() == 14) {
             return this.cpfCnpj.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
         }
+
         return this.cpfCnpj;
     }
 
@@ -131,6 +133,7 @@ public class Users {
         if (this.cpfCnpj == null || this.cpfCnpj.length() != 11 || !this.cpfCnpj.matches("\\d+")) {
             return false;
         }
+
         return true;
     }
 
@@ -138,6 +141,7 @@ public class Users {
         if (this.cpfCnpj == null || this.cpfCnpj.length() != 14 || !this.cpfCnpj.matches("\\d+")) {
             return false;
         }
+
         return true;
     }
 
@@ -151,6 +155,7 @@ public class Users {
         } else if (this.cpfCnpj.length() == 14) {
             return validateCnpj();
         }
+
         return false;
     }
 }

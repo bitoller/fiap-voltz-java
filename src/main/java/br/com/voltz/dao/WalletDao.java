@@ -1,11 +1,15 @@
 package br.com.voltz.dao;
 
-import br.com.voltz.model.Wallet;
-import br.com.voltz.factory.ConnectionFactory;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import br.com.voltz.factory.ConnectionFactory;
+import br.com.voltz.model.Wallet;
 
 public class WalletDao {
 
@@ -23,7 +27,7 @@ public class WalletDao {
 
         try (Connection connection = ConnectionFactory.getConnection()) {
             try (PreparedStatement stmtSeq = connection.prepareStatement(sqlSeq);
-                 ResultSet rsSeq = stmtSeq.executeQuery()) {
+                    ResultSet rsSeq = stmtSeq.executeQuery()) {
                 if (rsSeq.next()) {
                     nextId = rsSeq.getInt(1);
                 } else {
@@ -51,8 +55,9 @@ public class WalletDao {
 
     public Optional<Wallet> findByUserId(int userId) throws SQLException {
         String sql = "SELECT id, user_id, created_at FROM wallets WHERE user_id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
 
@@ -67,8 +72,9 @@ public class WalletDao {
 
     public Optional<Wallet> findById(int walletId) throws SQLException {
         String sql = "SELECT id, user_id, created_at FROM wallets WHERE id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, walletId);
 
@@ -86,9 +92,21 @@ public class WalletDao {
         wallet.setId(rs.getInt("id"));
         wallet.setUserId(rs.getInt("user_id"));
         Timestamp ts = rs.getTimestamp("created_at");
+
         if (ts != null) {
             wallet.setCreatedAt(ts.toLocalDateTime());
         }
+
         return wallet;
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM wallets WHERE id = ?";
+
+        try (Connection connection = ConnectionFactory.getConnection();
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
     }
 }

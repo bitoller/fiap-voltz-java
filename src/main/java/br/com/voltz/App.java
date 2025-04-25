@@ -1,5 +1,15 @@
 package br.com.voltz;
 
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+
 import br.com.voltz.dao.TransactionDao;
 import br.com.voltz.dao.UsersDao;
 import br.com.voltz.dao.WalletDao;
@@ -11,22 +21,13 @@ import br.com.voltz.model.Users;
 import br.com.voltz.model.Wallet;
 import br.com.voltz.model.WalletEntry;
 
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-
 public class App {
-
     private static final Scanner scanner = new Scanner(System.in);
     private static final UsersDao usersDao = new UsersDao();
     private static final WalletDao walletDao = new WalletDao();
     private static final WalletEntryDao walletEntryDao = new WalletEntryDao();
     private static final TransactionDao transactionDao = new TransactionDao();
-
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private static Users loggedInUser = null;
     private static Wallet loggedInWallet = null;
@@ -52,42 +53,52 @@ public class App {
 
             try {
                 switch (choice) {
-
                     case 1:
-                        if (loggedInUser == null) hangleRegisterUser();
-                        else System.out.println("Opção inválida.");
+                        if (loggedInUser == null)
+                            hangleRegisterUser();
+                        else
+                            System.out.println("Opção inválida.");
                         break;
                     case 2:
-                        if (loggedInUser == null) handleLogin();
-                        else System.out.println("Opção inválida.");
+                        if (loggedInUser == null)
+                            handleLogin();
+                        else
+                            System.out.println("Opção inválida.");
                         break;
-
                     case 3:
-                        if (checkLogin()) handleShowBalance();
+                        if (checkLogin())
+                            handleShowBalance();
                         break;
                     case 4:
-                        if (checkLogin()) handleDeposit();
+                        if (checkLogin())
+                            handleDeposit();
                         break;
                     case 5:
-                        if (checkLogin()) handleWithdraw();
+                        if (checkLogin())
+                            handleWithdraw();
                         break;
                     case 6:
-                        if (checkLogin()) handleTransfer();
+                        if (checkLogin())
+                            handleTransfer();
                         break;
                     case 7:
-                        if (checkLogin()) handleViewStatement();
+                        if (checkLogin())
+                            handleViewStatement();
                         break;
                     case 8:
-                        if (checkLogin()) handleEditUser();
+                        if (checkLogin())
+                            handleEditUser();
                         break;
                     case 9:
-                        if (checkLogin()) handleDeleteUser();
+                        if (checkLogin())
+                            handleDeleteUser();
                         break;
                     case 10:
                         handleListAllUsers();
                         break;
                     case 11:
-                        if (checkLogin()) handleLogout();
+                        if (checkLogin())
+                            handleLogout();
                         break;
                     case 12:
                         exit = true;
@@ -105,7 +116,6 @@ public class App {
                 System.err.println("\n!!! Ocorreu um erro inesperado: " + e.getMessage() + " !!!");
             }
         }
-
         System.out.println("\nObrigado por usar o Voltz Crypto Bank!");
         scanner.close();
     }
@@ -114,6 +124,7 @@ public class App {
         System.out.println("\n=========================");
         System.out.println("   Voltz Crypto Bank Menu");
         System.out.println("=========================");
+
         if (loggedInUser == null) {
             System.out.println("1. Registrar Novo Usuário");
             System.out.println("2. Login");
@@ -160,7 +171,8 @@ public class App {
                 if (walletOpt.isPresent()) {
                     loggedInWallet = walletOpt.get();
                 } else {
-                    System.err.println("ERRO CRÍTICO: Carteira não encontrada para o usuário logado ID: " + loggedInUser.getId());
+                    System.err.println(
+                            "ERRO CRÍTICO: Carteira não encontrada para o usuário logado ID: " + loggedInUser.getId());
                     System.err.println("Realizando logout forçado.");
                     handleLogout();
                     return false;
@@ -218,6 +230,7 @@ public class App {
             System.out.println("\nVocê já está logado como " + loggedInUser.getUserName() + ".");
             return;
         }
+
         System.out.println("\n--- Login ---");
         System.out.print("Email: ");
         String email = scanner.nextLine();
@@ -237,7 +250,8 @@ public class App {
 
                         if (walletOpt.isPresent()) {
                             loggedInWallet = walletOpt.get();
-                            System.out.println("\nLogin bem-sucedido! Bem-vindo(a), " + loggedInUser.getUserName() + "!");
+                            System.out
+                                    .println("\nLogin bem-sucedido! Bem-vindo(a), " + loggedInUser.getUserName() + "!");
                         } else {
                             System.err.println("ERRO CRÍTICO: Usuário existe mas não possui carteira associada!");
                             loggedInUser = null;
@@ -246,10 +260,10 @@ public class App {
                         System.out.println("\nERRO: Este usuário está inativo. Contate o suporte.");
                     }
                 } else {
-                    System.out.println("\nERRO: Senha incorreta.");
+                    System.out.println("\nERRO: Senha ou Email incorretos.");
                 }
             } else {
-                System.out.println("\nERRO: Email não encontrado.");
+                System.out.println("\nERRO: Senha ou Email incorretos.");
             }
         } catch (SQLException e) {
             System.err.println("\nERRO no Banco de Dados durante o login: " + e.getMessage());
@@ -266,6 +280,7 @@ public class App {
 
     private static void handleShowBalance() {
         System.out.println("\n--- Saldo da Carteira (ID: " + loggedInWallet.getId() + ") ---");
+
         try {
             List<WalletEntry> entries = walletEntryDao.findByWalletId(loggedInWallet.getId());
             loggedInWallet.setEntries(entries);
@@ -305,26 +320,14 @@ public class App {
         }
 
         String selectedSymbol = symbols[choice - 1];
+        BigDecimal amount = readAmount("depositar");
 
-        System.out.print("Digite a quantidade a depositar (ex: 0.05): ");
-        BigDecimal amount;
-
-        try {
-            amount = scanner.nextBigDecimal();
-            scanner.nextLine();
-
-            if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("\nERRO: A quantidade deve ser um valor positivo.");
-                return;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("\nERRO: Quantidade digitada inválida.");
-            scanner.nextLine();
+        if (amount == null)
             return;
-        }
 
         try {
-            Optional<WalletEntry> entryOpt = walletEntryDao.findByWalletIdAndSymbol(loggedInWallet.getId(), selectedSymbol);
+            Optional<WalletEntry> entryOpt = walletEntryDao.findByWalletIdAndSymbol(loggedInWallet.getId(),
+                    selectedSymbol);
 
             if (entryOpt.isPresent()) {
                 WalletEntry entry = entryOpt.get();
@@ -335,18 +338,10 @@ public class App {
                 walletEntryDao.save(newEntry);
             }
 
-            Transaction tx = new Transaction();
-            tx.setType("DEPOSIT");
-            tx.setDestinationWalletId(loggedInWallet.getId());
-            tx.setSourceWalletId(null);
-            tx.setCryptoSymbol(selectedSymbol);
-            tx.setAmount(amount);
-            tx.setTransactionDate(java.time.LocalDateTime.now());
-            tx.setStatus("COMPLETED");
+            Transaction tx = createTransaction("DEPOSIT", null, loggedInWallet.getId(), selectedSymbol, amount);
             transactionDao.save(tx);
 
             System.out.printf("\nDepósito de %s %s processado com sucesso!\n", amount.toPlainString(), selectedSymbol);
-
         } catch (SQLException e) {
             System.err.println("\nERRO no Banco de Dados ao processar depósito: " + e.getMessage());
         } catch (Exception e) {
@@ -356,81 +351,221 @@ public class App {
 
     private static void handleWithdraw() {
         System.out.println("\n--- Sacar Cripto ---");
-        System.out.println("!!! FUNCIONALIDADE AINDA NÃO IMPLEMENTADA !!!");
 
-        // Lógica similar ao depósito, mas com verificação de saldo e subtração
-        // 1. Listar apenas as criptos que o usuário TEM SALDO (findByWalletId)
-        // 2. Pedir qual sacar e a quantidade
-        // 3. Pedir endereço de destino (apenas para simular, não faremos envio real)
-        // 4. VERIFICAR se amount do WalletEntry >= quantidade a sacar
-        // 5. Se sim: Calcular novo saldo = entry.getAmount().subtract(quantidade)
-        // 6. Chamar walletEntryDao.updateAmount(...) com o novo saldo
-        // 7. Chamar transactionDao.save(...) com type="WITHDRAWAL", sourceWalletId=carteiraLogada.getId()
-        // 8. Se não tiver saldo: Mensagem de erro.
+        List<WalletEntry> entries = showAvailableCryptos("saque");
+
+        if (entries == null)
+            return;
+
+        WalletEntry selectedEntry = selectCrypto(entries);
+
+        if (selectedEntry == null)
+            return;
+
+        BigDecimal amount = readAmount("sacar");
+
+        if (amount == null)
+            return;
+
+        if (selectedEntry.getAmount().compareTo(amount) < 0) {
+            System.out.println("\nERRO: Saldo insuficiente para realizar o saque.");
+            return;
+        }
+
+        System.out.print("Digite o endereço da carteira de destino: ");
+        String destinationAddress = scanner.nextLine();
+
+        if (destinationAddress == null || destinationAddress.trim().isEmpty()) {
+            System.out.println("\nERRO: Endereço de destino inválido.");
+            return;
+        }
+
+        try {
+            BigDecimal newBalance = selectedEntry.getAmount().subtract(amount);
+            walletEntryDao.updateAmount(loggedInWallet.getId(), selectedEntry.getCryptoSymbol(), newBalance);
+
+            Transaction tx = createTransaction("WITHDRAWAL", loggedInWallet.getId(), null,
+                    selectedEntry.getCryptoSymbol(), amount);
+            transactionDao.save(tx);
+
+            System.out.printf("\nSaque de %s %s processado com sucesso!\n",
+                    amount.toPlainString(),
+                    selectedEntry.getCryptoSymbol());
+            System.out.println("Enviado para: " + destinationAddress);
+
+        } catch (SQLException e) {
+            System.err.println("\nERRO no Banco de Dados ao processar saque: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("\nERRO inesperado durante o saque: " + e.getMessage());
+        }
     }
 
     private static void handleTransfer() {
         System.out.println("\n--- Transferir Cripto ---");
-        System.out.println("!!! FUNCIONALIDADE AINDA NÃO IMPLEMENTADA !!!");
 
-        // Lógica mais complexa, envolve duas carteiras e transação de banco
-        // 1. Listar criptos que o usuário TEM SALDO
-        // 2. Pedir qual transferir e a quantidade
-        // 3. Pedir o EMAIL do usuário de destino
-        // 4. Verificar saldo do remetente (findByWalletIdAndSymbol)
-        // 5. Buscar usuário de destino pelo email (usersDao.findByEmail)
-        // 6. Se usuário destino existir, buscar carteira destino (walletDao.findByUserId)
-        // 7. Se tudo OK: INICIAR TRANSAÇÃO DE BANCO DE DADOS (Connection.setAutoCommit(false))
-        // 8. Tentar:
-        //    a. Subtrair do WalletEntry do remetente (updateAmount)
-        //    b. Adicionar/Atualizar WalletEntry do destinatário (findByWalletIdAndSymbol + save/updateAmount)
-        //    c. Salvar a transação (transactionDao.save com type="TRANSFER", source e dest IDs)
-        // 9. Se TUDO deu certo: Connection.commit()
-        // 10. Se QUALQUER passo falhar: Connection.rollback()
-        // 11. SEMPRE (bloco finally): Connection.setAutoCommit(true); Connection.close();
-        // 12. Informar sucesso ou falha.
+        List<WalletEntry> entries = showAvailableCryptos("transferência");
+
+        if (entries == null)
+            return;
+
+        WalletEntry selectedEntry = selectCrypto(entries);
+
+        if (selectedEntry == null)
+            return;
+
+        BigDecimal amount = readAmount("transferir");
+
+        if (amount == null)
+            return;
+
+        if (selectedEntry.getAmount().compareTo(amount) < 0) {
+            System.out.println("\nERRO: Saldo insuficiente para realizar a transferência.");
+            return;
+        }
+
+        System.out.print("Digite o email do usuário destinatário: ");
+        String destinationEmail = scanner.nextLine();
+
+        if (destinationEmail == null || destinationEmail.trim().isEmpty()) {
+            System.out.println("\nERRO: Email do destinatário inválido.");
+            return;
+        }
+
+        try {
+            Optional<Users> destinationUserOpt = usersDao.findByEmail(destinationEmail);
+
+            if (!destinationUserOpt.isPresent()) {
+                System.out.println("\nERRO: Usuário destinatário não encontrado.");
+                return;
+            }
+
+            Users destinationUser = destinationUserOpt.get();
+
+            if (!destinationUser.isActive()) {
+                System.out.println("\nERRO: A conta do usuário destinatário está inativa.");
+                return;
+            }
+
+            Optional<Wallet> destinationWalletOpt = walletDao.findByUserId(destinationUser.getId());
+
+            if (!destinationWalletOpt.isPresent()) {
+                System.out.println("\nERRO: Carteira do destinatário não encontrada.");
+                return;
+            }
+
+            Wallet destinationWallet = destinationWalletOpt.get();
+            Connection connection = null;
+
+            try {
+                connection = ConnectionFactory.getConnection();
+                connection.setAutoCommit(false);
+
+                BigDecimal senderNewBalance = selectedEntry.getAmount().subtract(amount);
+                walletEntryDao.updateAmount(loggedInWallet.getId(), selectedEntry.getCryptoSymbol(), senderNewBalance);
+
+                Optional<WalletEntry> recipientEntryOpt = walletEntryDao
+                        .findByWalletIdAndSymbol(destinationWallet.getId(), selectedEntry.getCryptoSymbol());
+
+                if (recipientEntryOpt.isPresent()) {
+                    WalletEntry recipientEntry = recipientEntryOpt.get();
+                    BigDecimal recipientNewBalance = recipientEntry.getAmount().add(amount);
+                    walletEntryDao.updateAmount(destinationWallet.getId(), selectedEntry.getCryptoSymbol(),
+                            recipientNewBalance);
+                } else {
+                    WalletEntry newEntry = new WalletEntry(destinationWallet.getId(), selectedEntry.getCryptoSymbol(),
+                            amount);
+                    walletEntryDao.save(newEntry);
+                }
+
+                Transaction tx = createTransaction("TRANSFER", loggedInWallet.getId(), destinationWallet.getId(),
+                        selectedEntry.getCryptoSymbol(), amount);
+                transactionDao.save(tx);
+
+                connection.commit();
+
+                System.out.printf("\nTransferência de %s %s processada com sucesso!\n",
+                        amount.toPlainString(),
+                        selectedEntry.getCryptoSymbol());
+                System.out.println("Enviado para: " + destinationUser.getUserName() + " (" + destinationEmail + ")");
+
+            } catch (Exception e) {
+                if (connection != null) {
+                    try {
+                        connection.rollback();
+                    } catch (SQLException rollbackEx) {
+                        System.err.println("ERRO ao reverter transação: " + rollbackEx.getMessage());
+                    }
+                }
+                throw e;
+            } finally {
+                if (connection != null) {
+                    try {
+                        connection.setAutoCommit(true);
+                        connection.close();
+                    } catch (SQLException closeEx) {
+                        System.err.println("ERRO ao fechar conexão: " + closeEx.getMessage());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("\nERRO no Banco de Dados ao processar transferência: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("\nERRO inesperado durante a transferência: " + e.getMessage());
+        }
     }
 
     private static void handleViewStatement() {
         System.out.println("\n--- Extrato da Conta (Últimas 20 Transações) ---");
+
         try {
             List<Transaction> transactions = transactionDao.findRecentByWalletId(loggedInWallet.getId(), 20);
 
             if (transactions.isEmpty()) {
                 System.out.println("Nenhuma transação registrada para esta carteira.");
-            } else {
-                System.out.println("---------------------------------------------------------------------------------------------------");
-                System.out.println("Data/Hora           | Tipo       | Cripto | Quantidade | De/Para     | Status");
-                System.out.println("-------------------|------------|--------|------------|-------------|-----------");
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-                for (Transaction tx : transactions) {
-                    String fromTo = "-";
-                    if ("DEPOSIT".equals(tx.getType())) {
-                        fromTo = "Depósito";
-                    } else if ("WITHDRAWAL".equals(tx.getType())) {
-                        fromTo = "Saque";
-                    } else if ("TRANSFER".equals(tx.getType())) {
-                        if (loggedInWallet.getId() == tx.getSourceWalletId()) {
-                            fromTo = "Env->W:" + tx.getDestinationWalletId();
-                        } else {
-                            fromTo = "Rec<-W:" + tx.getSourceWalletId();
-                        }
-                    }
-
-                    System.out.printf("%-19s | %-10s | %-6s | %-10s | %-11s | %s\n",
-                            tx.getTransactionDate() != null ? tx.getTransactionDate().format(formatter) : "N/A",
-                            tx.getType() != null ? tx.getType() : "N/A",
-                            tx.getCryptoSymbol() != null ? tx.getCryptoSymbol() : "N/A",
-                            tx.getAmount() != null ? tx.getAmount().toPlainString() : "N/A",
-                            fromTo,
-                            tx.getStatus() != null ? tx.getStatus() : "N/A");
-                }
-                System.out.println("---------------------------------------------------------------------------------------------------");
+                return;
             }
+
+            System.out.println(
+                    "---------------------------------------------------------------------------------------------------");
+            System.out.println("Data/Hora           | Tipo       | Cripto | Quantidade | De/Para     | Status");
+            System.out.println("-------------------|------------|--------|------------|-------------|-----------");
+
+            for (Transaction tx : transactions) {
+                String fromTo = formatFromTo(tx);
+
+                System.out.printf("%-19s | %-10s | %-6s | %-10s | %-11s | %s\n",
+                        tx.getTransactionDate() != null ? tx.getTransactionDate().format(DATE_TIME_FORMATTER) : "N/A",
+                        tx.getType() != null ? tx.getType() : "N/A",
+                        tx.getCryptoSymbol() != null ? tx.getCryptoSymbol() : "N/A",
+                        tx.getAmount() != null ? tx.getAmount().toPlainString() : "N/A",
+                        fromTo,
+                        tx.getStatus() != null ? tx.getStatus() : "N/A");
+            }
+            System.out.println(
+                    "---------------------------------------------------------------------------------------------------");
         } catch (SQLException e) {
             System.err.println("\nERRO ao buscar extrato: " + e.getMessage());
         }
+    }
+
+    private static String formatFromTo(Transaction tx) {
+        if ("DEPOSIT".equals(tx.getType())) {
+            return "Depósito";
+        } else if ("WITHDRAWAL".equals(tx.getType())) {
+            return "Saque";
+        } else if ("TRANSFER".equals(tx.getType())) {
+            Integer sourceId = tx.getSourceWalletId();
+            Integer destId = tx.getDestinationWalletId();
+            int currentWalletId = loggedInWallet.getId();
+
+            if (sourceId != null && sourceId == currentWalletId) {
+                return "Env->W:" + destId;
+            } else if (destId != null && destId == currentWalletId) {
+                return "Rec<-W:" + sourceId;
+            }
+        }
+        return "-";
     }
 
     private static void handleEditUser() {
@@ -458,7 +593,8 @@ public class App {
         String newName = scanner.nextLine();
         System.out.print("Novo email [" + currentUser.getEmail() + "]: ");
         String newEmail = scanner.nextLine();
-        // TODO: Validar formato do novo email, verificar se já existe (se for diferente do atual)
+        // TODO: Validar formato do novo email, verificar se já existe (se for diferente
+        // do atual)
         System.out.print("Novo telefone [" + currentUser.getPhoneNumber() + "]: ");
         String newPhoneNumber = scanner.nextLine();
         System.out.print("Nova senha (deixe em branco para não alterar): ");
@@ -469,17 +605,21 @@ public class App {
         if (newName != null && !newName.trim().isEmpty()) {
             currentUser.setUserName(newName.trim());
         }
+
         if (newEmail != null && !newEmail.trim().isEmpty()) {
             currentUser.setEmail(newEmail.trim());
         }
+
         if (newPhoneNumber != null && !newPhoneNumber.trim().isEmpty()) {
             currentUser.setPhoneNumber(newPhoneNumber.trim());
         }
+
         if (newPassword != null && !newPassword.isEmpty()) {
             currentUser.setPassword(newPassword);
         } else {
             currentUser.setPassword(null);
         }
+
         if (activeInput != null && !activeInput.trim().isEmpty()) {
             currentUser.setActive(activeInput.trim().equalsIgnoreCase("S"));
         }
@@ -513,26 +653,51 @@ public class App {
 
             Users userToDelete = userOpt.get();
 
-            if (usersDao.checkPassword(confirmPassword, userToDelete.getPassword())) {
-                System.out.print("Confirmação final. Tem certeza que deseja deletar sua conta? (S/N): ");
-                String confirm = scanner.nextLine();
-                if ("S".equalsIgnoreCase(confirm)) {
-                    // TODO: Implementar exclusão em cascata ou explícita
-                    // 1. Deletar WalletEntries (walletEntryDao.deleteByWalletId)
-                    // 2. Deletar Wallet (walletDao.delete) - CUIDADO com FK! Pode ser melhor só inativar.
-                    // 3. Deletar Transações? (Opcional, pode querer manter histórico)
-                    // 4. Deletar Usuário (usersDao.delete)
-
-                    usersDao.delete(userToDelete.getId());
-                    System.out.println("\nUsuário deletado com sucesso.");
-                    handleLogout();
-
-                } else {
-                    System.out.println("\nExclusão cancelada.");
-                }
-            } else {
+            if (!usersDao.checkPassword(confirmPassword, userToDelete.getPassword())) {
                 System.out.println("\nERRO: Senha de confirmação incorreta.");
+                return;
             }
+
+            System.out.print("Confirmação final. Tem certeza que deseja deletar sua conta? (S/N): ");
+            String confirm = scanner.nextLine();
+
+            if (!"S".equalsIgnoreCase(confirm)) {
+                System.out.println("\nExclusão cancelada.");
+                return;
+            }
+
+            Connection connection = null;
+
+            try {
+                connection = ConnectionFactory.getConnection();
+                connection.setAutoCommit(false);
+                walletEntryDao.deleteByWalletId(loggedInWallet.getId());
+                walletDao.delete(loggedInWallet.getId());
+                usersDao.delete(userToDelete.getId());
+                connection.commit();
+                System.out.println("\nUsuário e carteira deletados com sucesso.");
+                handleLogout();
+
+            } catch (Exception e) {
+                if (connection != null) {
+                    try {
+                        connection.rollback();
+                    } catch (SQLException rollbackEx) {
+                        System.err.println("ERRO ao reverter transação: " + rollbackEx.getMessage());
+                    }
+                }
+                throw e;
+            } finally {
+                if (connection != null) {
+                    try {
+                        connection.setAutoCommit(true);
+                        connection.close();
+                    } catch (SQLException closeEx) {
+                        System.err.println("ERRO ao fechar conexão: " + closeEx.getMessage());
+                    }
+                }
+            }
+
         } catch (SQLException e) {
             System.err.println("\nERRO no Banco de Dados ao tentar deletar usuário: " + e.getMessage());
         } catch (Exception e) {
@@ -542,8 +707,10 @@ public class App {
 
     private static void handleListAllUsers() {
         System.out.println("\n--- Lista de Todos os Usuários (Apenas Teste) ---");
+
         try {
             List<Users> allUsers = usersDao.findAll();
+
             if (allUsers.isEmpty()) {
                 System.out.println("Nenhum usuário registrado no sistema.");
             } else {
@@ -562,5 +729,80 @@ public class App {
         } catch (SQLException e) {
             System.err.println("\nERRO ao listar usuários: " + e.getMessage());
         }
+    }
+
+    private static BigDecimal readAmount(String operation) {
+        System.out.print("Digite a quantidade a " + operation + " (ex: 0.05): ");
+
+        try {
+            BigDecimal amount = scanner.nextBigDecimal();
+            scanner.nextLine();
+
+            if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("\nERRO: A quantidade deve ser um valor positivo.");
+                return null;
+            }
+
+            return amount;
+        } catch (InputMismatchException e) {
+            System.out.println("\nERRO: Quantidade digitada inválida.");
+            scanner.nextLine();
+            return null;
+        }
+    }
+
+    private static List<WalletEntry> showAvailableCryptos(String operation) {
+        try {
+            List<WalletEntry> entries = walletEntryDao.findByWalletId(loggedInWallet.getId());
+
+            if (entries.isEmpty()) {
+                System.out.println("Você não possui saldo em nenhuma criptomoeda para " + operation + ".");
+                return null;
+            }
+
+            System.out.println("Criptomoedas disponíveis para " + operation + ":");
+            System.out.println("---------------------");
+            System.out.println(" # | Cripto | Saldo");
+            System.out.println("---------------------");
+
+            for (int i = 0; i < entries.size(); i++) {
+                WalletEntry entry = entries.get(i);
+                System.out.printf(" %d | %-6s | %s\n",
+                        i + 1,
+                        entry.getCryptoSymbol(),
+                        entry.getAmount().toPlainString());
+            }
+
+            System.out.println("---------------------");
+            return entries;
+        } catch (SQLException e) {
+            System.err.println("\nERRO ao buscar saldos: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static WalletEntry selectCrypto(List<WalletEntry> entries) {
+        System.out.print("Escolha o número da cripto: ");
+        int choice = readOption();
+
+        if (choice < 1 || choice > entries.size()) {
+            System.out.println("\nOpção de cripto inválida.");
+            return null;
+        }
+
+        return entries.get(choice - 1);
+    }
+
+    private static Transaction createTransaction(String type, Integer sourceWalletId, Integer destWalletId,
+            String cryptoSymbol, BigDecimal amount) {
+        Transaction tx = new Transaction();
+        tx.setType(type);
+        tx.setSourceWalletId(sourceWalletId);
+        tx.setDestinationWalletId(destWalletId);
+        tx.setCryptoSymbol(cryptoSymbol);
+        tx.setAmount(amount);
+        tx.setTransactionDate(LocalDateTime.now());
+        tx.setStatus("COMPLETED");
+        return tx;
     }
 }

@@ -46,6 +46,7 @@ public enum SupportedCrypto {
         if (symbol == null || symbol.trim().isEmpty()) {
             return Optional.empty();
         }
+
         String upperSymbol = symbol.toUpperCase();
         return Arrays.stream(values())
                 .filter(crypto -> crypto.symbol.equals(upperSymbol))

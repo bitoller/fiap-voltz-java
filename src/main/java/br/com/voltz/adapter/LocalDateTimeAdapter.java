@@ -1,12 +1,12 @@
 package br.com.voltz.adapter;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -25,6 +25,7 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         if (in != null && in.peek() != null) {
             return LocalDateTime.parse(in.nextString(), formatter);
         }
+        
         return null;
     }
 }

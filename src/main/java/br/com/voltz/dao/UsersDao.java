@@ -1,14 +1,20 @@
 package br.com.voltz.dao;
 
-import br.com.voltz.model.Users;
-import br.com.voltz.factory.ConnectionFactory;
-import org.mindrot.jbcrypt.BCrypt;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+import br.com.voltz.factory.ConnectionFactory;
+import br.com.voltz.model.Users;
 
 public class UsersDao {
 
@@ -16,11 +22,13 @@ public class UsersDao {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
             throw new IllegalArgumentException("Senha não pode ser vazia para hashing.");
         }
+
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
     }
 
     public boolean checkPassword(String plainPassword, String hashedPassword) {
-        if (plainPassword == null || hashedPassword == null || hashedPassword.isEmpty() || !hashedPassword.startsWith("$2a$")) {
+        if (plainPassword == null || hashedPassword == null || hashedPassword.isEmpty()
+                || !hashedPassword.startsWith("$2a$")) {
             return false;
         }
 
@@ -43,7 +51,7 @@ public class UsersDao {
 
         try (Connection connection = ConnectionFactory.getConnection()) {
             try (PreparedStatement stmtSeq = connection.prepareStatement(sqlSeq);
-                 ResultSet rsSeq = stmtSeq.executeQuery()) {
+                    ResultSet rsSeq = stmtSeq.executeQuery()) {
 
                 if (rsSeq.next()) {
                     nextId = rsSeq.getInt(1);
@@ -78,15 +86,16 @@ public class UsersDao {
         return nextId;
     }
 
-
     public void update(Users user) throws SQLException {
         if (user == null || user.getId() <= 0) {
             throw new IllegalArgumentException("Usuário inválido ou sem ID para atualização.");
         }
+
         LocalDateTime now = LocalDateTime.now();
         user.setDateUpdated(now);
 
-        boolean updatePassword = user.getPassword() != null && !user.getPassword().isEmpty() && !user.getPassword().startsWith("$2a$");
+        boolean updatePassword = user.getPassword() != null && !user.getPassword().isEmpty()
+                && !user.getPassword().startsWith("$2a$");
 
         String sql;
 
@@ -97,7 +106,7 @@ public class UsersDao {
         }
 
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUserName());
             stmt.setString(2, user.getCpfCnpj());
@@ -121,28 +130,28 @@ public class UsersDao {
         }
     }
 
-
     public void delete(int id) throws SQLException {
         if (id <= 0) {
             throw new IllegalArgumentException("ID de usuário inválido para exclusão.");
         }
+
         String sql = "DELETE FROM users WHERE id = ?";
 
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         }
     }
 
-
     public Optional<Users> findById(int id) throws SQLException {
-        if (id <= 0) return Optional.empty();
+        if (id <= 0)
+            return Optional.empty();
 
         String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users WHERE id = ?";
 
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -154,14 +163,14 @@ public class UsersDao {
         return Optional.empty();
     }
 
-
     public Optional<Users> findByEmail(String email) throws SQLException {
-        if (email == null || email.trim().isEmpty()) return Optional.empty();
+        if (email == null || email.trim().isEmpty())
+            return Optional.empty();
 
         String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users WHERE email = ?";
 
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+                PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -173,21 +182,19 @@ public class UsersDao {
         return Optional.empty();
     }
 
-
     public List<Users> findAll() throws SQLException {
         List<Users> users = new ArrayList<>();
         String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users";
 
         try (Connection connection = ConnectionFactory.getConnection();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 users.add(mapResultSetToUsers(rs));
             }
         }
         return users;
     }
-
 
     private Users mapResultSetToUsers(ResultSet rs) throws SQLException {
         Users user = new Users();
@@ -204,11 +211,13 @@ public class UsersDao {
         if (tsCreated != null) {
             user.setDateCreated(tsCreated.toLocalDateTime());
         }
+
         Timestamp tsUpdated = rs.getTimestamp("date_updated");
 
         if (tsUpdated != null) {
             user.setDateUpdated(tsUpdated.toLocalDateTime());
         }
+
         return user;
     }
 }
