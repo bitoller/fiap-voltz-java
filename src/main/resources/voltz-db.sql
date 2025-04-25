@@ -1,8 +1,3 @@
--- ==========================================================================
--- Script SQL para Voltz Crypto Bank (Oracle SQL)
--- Baseado na estrutura definida: Users(CPF/CNPJ), Wallet, WalletEntry, Transaction
--- ==========================================================================
-
 -- --------------------------------------------------------------------------
 -- Limpeza Opcional (CUIDADO: Apaga TUDO se já existir!)
 -- Descomente as linhas abaixo APENAS se quiser recriar tudo do zero.
@@ -17,9 +12,6 @@ DROP SEQUENCE wallet_entries_seq;
 DROP SEQUENCE wallets_seq;
 DROP SEQUENCE users_seq;
 */
--- --------------------------------------------------------------------------
-
-
 -- --------------------------------------------------------------------------
 -- Criação das SEQUENCES para IDs Auto-Increment
 -- (Execute este bloco PRIMEIRO)
