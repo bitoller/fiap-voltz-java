@@ -9,7 +9,9 @@ import java.util.Optional;
 
 public class WalletDao {
 
-    public WalletDao() { }
+    public WalletDao() {
+    }
+
     public int save(Wallet wallet) throws SQLException {
         if (wallet == null || wallet.getUserId() <= 0) {
             throw new IllegalArgumentException("Wallet inválida ou sem userId para salvar.");
@@ -20,7 +22,6 @@ public class WalletDao {
         int nextId = 0;
 
         try (Connection connection = ConnectionFactory.getConnection()) {
-            // 1. Obter o próximo ID da sequence
             try (PreparedStatement stmtSeq = connection.prepareStatement(sqlSeq);
                  ResultSet rsSeq = stmtSeq.executeQuery()) {
                 if (rsSeq.next()) {
@@ -54,6 +55,7 @@ public class WalletDao {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToWallet(rs));
@@ -69,6 +71,7 @@ public class WalletDao {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, walletId);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToWallet(rs));

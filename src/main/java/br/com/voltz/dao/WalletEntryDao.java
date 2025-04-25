@@ -12,10 +12,12 @@ import java.util.Optional;
 
 public class WalletEntryDao {
 
-    public WalletEntryDao() { }
+    public WalletEntryDao() {
+    }
 
     public void save(WalletEntry entry) throws SQLException {
         String sql = "INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount, last_updated) VALUES (?, ?, ?, ?)";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -33,6 +35,7 @@ public class WalletEntryDao {
 
     public void updateAmount(int walletId, String cryptoSymbol, BigDecimal newAmount) throws SQLException {
         String sql = "UPDATE wallet_entries SET amount = ?, last_updated = ? WHERE wallet_id = ? AND crypto_symbol = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -43,6 +46,7 @@ public class WalletEntryDao {
             stmt.setString(4, cryptoSymbol);
 
             int affectedRows = stmt.executeUpdate();
+
             if (affectedRows == 0) {
                 System.err.printf("Aviso: Nenhuma entrada de carteira atualizada para walletId=%d e symbol=%s\n", walletId, cryptoSymbol);
             }
@@ -51,6 +55,7 @@ public class WalletEntryDao {
 
     public void update(WalletEntry entry) throws SQLException {
         String sql = "UPDATE wallet_entries SET wallet_id = ?, crypto_symbol = ?, amount = ?, last_updated = ? WHERE id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -71,10 +76,12 @@ public class WalletEntryDao {
     public List<WalletEntry> findByWalletId(int walletId) throws SQLException {
         List<WalletEntry> entries = new ArrayList<>();
         String sql = "SELECT id, wallet_id, crypto_symbol, amount, last_updated FROM wallet_entries WHERE wallet_id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, walletId);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     entries.add(mapResultSetToWalletEntry(rs));
@@ -86,11 +93,13 @@ public class WalletEntryDao {
 
     public Optional<WalletEntry> findByWalletIdAndSymbol(int walletId, String cryptoSymbol) throws SQLException {
         String sql = "SELECT id, wallet_id, crypto_symbol, amount, last_updated FROM wallet_entries WHERE wallet_id = ? AND crypto_symbol = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setInt(1, walletId);
             stmt.setString(2, cryptoSymbol);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToWalletEntry(rs));
@@ -107,6 +116,7 @@ public class WalletEntryDao {
         entry.setCryptoSymbol(rs.getString("crypto_symbol"));
         entry.setAmount(rs.getBigDecimal("amount"));
         Timestamp ts = rs.getTimestamp("last_updated");
+
         if (ts != null) {
             entry.setLastUpdated(ts.toLocalDateTime());
         }

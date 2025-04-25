@@ -1,7 +1,5 @@
-// Coloque este arquivo dentro do pacote: br/com/voltz/
 package br.com.voltz;
 
-// Imports Atualizados
 import br.com.voltz.dao.TransactionDao;
 import br.com.voltz.dao.UsersDao;
 import br.com.voltz.dao.WalletDao;
@@ -9,7 +7,7 @@ import br.com.voltz.dao.WalletEntryDao;
 import br.com.voltz.factory.ConnectionFactory;
 import br.com.voltz.model.SupportedCrypto;
 import br.com.voltz.model.Transaction;
-import br.com.voltz.model.Users; // Usando Users (plural)
+import br.com.voltz.model.Users;
 import br.com.voltz.model.Wallet;
 import br.com.voltz.model.WalletEntry;
 
@@ -23,21 +21,19 @@ import java.util.Scanner;
 
 public class App {
 
-    // Scanner e DAOs como estáticos para fácil acesso
     private static final Scanner scanner = new Scanner(System.in);
-    private static final UsersDao usersDao = new UsersDao(); // DAO no plural
+    private static final UsersDao usersDao = new UsersDao();
     private static final WalletDao walletDao = new WalletDao();
     private static final WalletEntryDao walletEntryDao = new WalletEntryDao();
     private static final TransactionDao transactionDao = new TransactionDao();
 
-    // Estado da "sessão" do usuário
-    private static Users usuarioLogado = null; // Usuário logado (plural)
-    private static Wallet carteiraLogada = null; // Carteira do usuário logado
+
+    private static Users loggedInUser = null;
+    private static Wallet loggedInWallet = null;
 
     public static void main(String[] args) {
         System.out.println("Bem-vindo ao Voltz Crypto Bank!");
 
-        // Teste inicial de conexão (opcional, mas recomendado)
         try {
             ConnectionFactory.getConnection().close();
             System.out.println("Conexão com o banco de dados estabelecida.");
@@ -45,43 +41,68 @@ public class App {
             System.err.println("ERRO FATAL: Não foi possível conectar ao banco.");
             System.err.println("Verifique URL, usuário, senha e se o banco está rodando.");
             System.err.println(e.getMessage());
-            return; // Encerra se não conectar
+            return;
         }
 
         boolean exit = false;
+
         while (!exit) {
-            exibirMenuPrincipal();
-            int choice = lerOpcao();
+            showMainMenu();
+            int choice = readOption();
 
-            try { // Bloco try-catch geral para capturar erros inesperados no fluxo
+            try {
                 switch (choice) {
-                    // --- Menu Deslogado ---
-                    case 1: if (usuarioLogado == null) handleRegistrarUsuario(); else System.out.println("Opção inválida."); break;
-                    case 2: if (usuarioLogado == null) handleLogin(); else System.out.println("Opção inválida."); break;
 
-                    // --- Menu Logado ---
-                    case 3: if (checkLogin()) handleVerSaldo(); break;
-                    case 4: if (checkLogin()) handleDepositar(); break;
-                    case 5: if (checkLogin()) handleSacar(); break;
-                    case 6: if (checkLogin()) handleTransferir(); break;
-                    case 7: if (checkLogin()) handleVerExtrato(); break;
-                    case 8: if (checkLogin()) handleEditarUsuario(); break; // Manteve Editar
-                    case 9: if (checkLogin()) handleDeletarUsuario(); break; // Manteve Deletar
-                    case 10: handleListarTodosUsuarios(); break; // Manteve Listar (Teste)
-                    case 11: if (checkLogin()) handleLogout(); break;
+                    case 1:
+                        if (loggedInUser == null) hangleRegisterUser();
+                        else System.out.println("Opção inválida.");
+                        break;
+                    case 2:
+                        if (loggedInUser == null) handleLogin();
+                        else System.out.println("Opção inválida.");
+                        break;
 
-                    // --- Sair ---
-                    case 12: exit = true; break; // Opção de Sair
-
-                    default: System.out.println("Opção inválida. Tente novamente."); break;
+                    case 3:
+                        if (checkLogin()) handleShowBalance();
+                        break;
+                    case 4:
+                        if (checkLogin()) handleDeposit();
+                        break;
+                    case 5:
+                        if (checkLogin()) handleWithdraw();
+                        break;
+                    case 6:
+                        if (checkLogin()) handleTransfer();
+                        break;
+                    case 7:
+                        if (checkLogin()) handleViewStatement();
+                        break;
+                    case 8:
+                        if (checkLogin()) handleEditUser();
+                        break;
+                    case 9:
+                        if (checkLogin()) handleDeleteUser();
+                        break;
+                    case 10:
+                        handleListAllUsers();
+                        break;
+                    case 11:
+                        if (checkLogin()) handleLogout();
+                        break;
+                    case 12:
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Opção inválida. Tente novamente.");
+                        break;
                 }
+
                 if (!exit) {
                     System.out.println("\nPressione Enter para continuar...");
-                    scanner.nextLine(); // Pausa para o usuário ler a saída
+                    scanner.nextLine();
                 }
             } catch (Exception e) {
                 System.err.println("\n!!! Ocorreu um erro inesperado: " + e.getMessage() + " !!!");
-                // e.printStackTrace(); // Descomente para ver o stack trace completo durante o desenvolvimento
             }
         }
 
@@ -89,19 +110,17 @@ public class App {
         scanner.close();
     }
 
-    // --- Métodos de UI e Controle de Fluxo ---
-
-    private static void exibirMenuPrincipal() {
+    private static void showMainMenu() {
         System.out.println("\n=========================");
         System.out.println("   Voltz Crypto Bank Menu");
         System.out.println("=========================");
-        if (usuarioLogado == null) {
+        if (loggedInUser == null) {
             System.out.println("1. Registrar Novo Usuário");
             System.out.println("2. Login");
-            System.out.println("10. Listar Todos Usuários (Teste)"); // Mantido para teste
+            System.out.println("10. Listar Todos Usuários (Teste)");
             System.out.println("12. Sair");
         } else {
-            System.out.println("Usuário Logado: " + usuarioLogado.getNome() + " (ID: " + usuarioLogado.getId() + ")");
+            System.out.println("Usuário Logado: " + loggedInUser.getUserName() + " (ID: " + loggedInUser.getId() + ")");
             System.out.println("-------------------------");
             System.out.println("3. Ver Saldo da Carteira");
             System.out.println("4. Depositar Cripto");
@@ -110,86 +129,78 @@ public class App {
             System.out.println("7. Ver Extrato");
             System.out.println("8. Editar Meus Dados");
             System.out.println("9. Deletar Minha Conta");
-            System.out.println("10. Listar Todos Usuários (Teste)"); // Mantido para teste
+            System.out.println("10. Listar Todos Usuários (Teste)");
             System.out.println("11. Logout");
             System.out.println("12. Sair");
         }
         System.out.print("Escolha uma opção: ");
     }
 
-    private static int lerOpcao() {
+    private static int readOption() {
         try {
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consome a nova linha pendente após nextInt()
+            scanner.nextLine();
             return choice;
         } catch (InputMismatchException e) {
             System.out.println("Erro: Entrada inválida. Por favor, digite um número.");
-            scanner.nextLine(); // Consome a entrada inválida que causou a exceção
-            return -1; // Retorna um valor inválido para indicar erro
+            scanner.nextLine();
+            return -1;
         }
     }
 
-    // Verifica se o usuário está logado e carrega a carteira se necessário
     private static boolean checkLogin() {
-        if (usuarioLogado == null) {
+        if (loggedInUser == null) {
             System.out.println("\nERRO: Você precisa estar logado para realizar esta operação.");
             return false;
         }
-        // Garante que a carteira associada ao usuário logado esteja carregada
-        if (carteiraLogada == null) {
+
+        if (loggedInWallet == null) {
             try {
-                Optional<Wallet> walletOpt = walletDao.findByUserId(usuarioLogado.getId());
+                Optional<Wallet> walletOpt = walletDao.findByUserId(loggedInUser.getId());
                 if (walletOpt.isPresent()) {
-                    carteiraLogada = walletOpt.get();
+                    loggedInWallet = walletOpt.get();
                 } else {
-                    // Situação inesperada: usuário logado sem carteira no banco
-                    System.err.println("ERRO CRÍTICO: Carteira não encontrada para o usuário logado ID: " + usuarioLogado.getId());
+                    System.err.println("ERRO CRÍTICO: Carteira não encontrada para o usuário logado ID: " + loggedInUser.getId());
                     System.err.println("Realizando logout forçado.");
-                    handleLogout(); // Desloga por segurança/consistência
+                    handleLogout();
                     return false;
                 }
             } catch (SQLException e) {
                 System.err.println("ERRO ao buscar dados da carteira: " + e.getMessage());
-                return false; // Não pode continuar sem a carteira
+                return false;
             }
         }
-        return true; // Usuário logado e carteira carregada
+        return true;
     }
 
-    // --- Métodos Handler para Opções do Menu ---
-
-    private static void handleRegistrarUsuario() {
+    private static void hangleRegisterUser() {
         System.out.println("\n--- Registrar Novo Usuário ---");
         System.out.print("Nome completo: ");
-        String nome = scanner.nextLine();
+        String userName = scanner.nextLine();
         System.out.print("CPF ou CNPJ (apenas números): ");
         String cpfCnpj = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
         // TODO: Adicionar validação de formato de email
         System.out.print("Telefone: ");
-        String telefone = scanner.nextLine();
+        String phoneNumber = scanner.nextLine();
         System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+        String password = scanner.nextLine();
         // TODO: Adicionar validação de força da senha
 
-        // Cria objeto Users (plural)
-        Users novoUsuario = new Users(nome, cpfCnpj, email, telefone, senha, true); // Ativo por padrão
+        Users newUser = new Users(userName, cpfCnpj, email, phoneNumber, password, true);
 
         try {
-            // Verifica se o email já existe ANTES de tentar salvar
             if (usersDao.findByEmail(email).isPresent()) {
                 System.out.println("\nERRO: Este email já está cadastrado.");
                 return;
             }
 
-            // Salva o usuário no banco (DAO fará o hash da senha)
-            int novoUserId = usersDao.save(novoUsuario); // Pega o ID retornado
-            System.out.println("\nUsuário registrado com sucesso! ID: " + novoUserId);
+            int newUserId = usersDao.save(newUser);
+            System.out.println("\nUsuário registrado com sucesso! ID: " + newUserId);
 
-            // Cria a carteira para este novo usuário
-            Wallet novaCarteira = new Wallet(novoUserId);
-            walletDao.save(novaCarteira);
+            Wallet newWallet = new Wallet(newUserId);
+            walletDao.save(newWallet);
             System.out.println("Carteira criada com sucesso para o usuário.");
             System.out.println("Agora você pode fazer o login.");
 
@@ -203,33 +214,33 @@ public class App {
     }
 
     private static void handleLogin() {
-        if (usuarioLogado != null) {
-            System.out.println("\nVocê já está logado como " + usuarioLogado.getNome() + ".");
+        if (loggedInUser != null) {
+            System.out.println("\nVocê já está logado como " + loggedInUser.getUserName() + ".");
             return;
         }
         System.out.println("\n--- Login ---");
         System.out.print("Email: ");
         String email = scanner.nextLine();
         System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+        String password = scanner.nextLine();
 
         try {
-            Optional<Users> userOpt = usersDao.findByEmail(email); // Usa usersDao
+            Optional<Users> userOpt = usersDao.findByEmail(email);
 
             if (userOpt.isPresent()) {
-                Users user = userOpt.get(); // Usa Users
-                // Verifica a senha usando o método do DAO
-                if (usersDao.checkPassword(senha, user.getSenha())) { // user.getSenha() retorna o HASH do banco
-                    if (user.isAtivo()) {
-                        usuarioLogado = user; // Define o usuário logado
-                        // Tenta carregar a carteira associada
-                        Optional<Wallet> walletOpt = walletDao.findByUserId(usuarioLogado.getId());
+                Users user = userOpt.get();
+
+                if (usersDao.checkPassword(password, user.getPassword())) {
+                    if (user.isActive()) {
+                        loggedInUser = user;
+                        Optional<Wallet> walletOpt = walletDao.findByUserId(loggedInUser.getId());
+
                         if (walletOpt.isPresent()) {
-                            carteiraLogada = walletOpt.get(); // Define a carteira logada
-                            System.out.println("\nLogin bem-sucedido! Bem-vindo(a), " + usuarioLogado.getNome() + "!");
+                            loggedInWallet = walletOpt.get();
+                            System.out.println("\nLogin bem-sucedido! Bem-vindo(a), " + loggedInUser.getUserName() + "!");
                         } else {
                             System.err.println("ERRO CRÍTICO: Usuário existe mas não possui carteira associada!");
-                            usuarioLogado = null; // Login falha se não achar a carteira
+                            loggedInUser = null;
                         }
                     } else {
                         System.out.println("\nERRO: Este usuário está inativo. Contate o suporte.");
@@ -248,18 +259,16 @@ public class App {
     }
 
     private static void handleLogout() {
-        usuarioLogado = null;
-        carteiraLogada = null;
+        loggedInUser = null;
+        loggedInWallet = null;
         System.out.println("\nLogout realizado com sucesso.");
     }
 
-    private static void handleVerSaldo() {
-        System.out.println("\n--- Saldo da Carteira (ID: " + carteiraLogada.getId() + ") ---");
+    private static void handleShowBalance() {
+        System.out.println("\n--- Saldo da Carteira (ID: " + loggedInWallet.getId() + ") ---");
         try {
-            // Busca os saldos (entradas) da carteira no banco
-            List<WalletEntry> entries = walletEntryDao.findByWalletId(carteiraLogada.getId());
-            // Atualiza a lista no objeto em memória (opcional, mas bom para consistência)
-            carteiraLogada.setEntries(entries);
+            List<WalletEntry> entries = walletEntryDao.findByWalletId(loggedInWallet.getId());
+            loggedInWallet.setEntries(entries);
 
             if (entries.isEmpty()) {
                 System.out.println("Sua carteira está vazia. Que tal fazer um depósito?");
@@ -268,7 +277,6 @@ public class App {
                 System.out.println(" Cripto | Quantidade");
                 System.out.println("---------------------");
                 for (WalletEntry entry : entries) {
-                    // Usar toPlainString() para evitar notação científica em valores grandes/pequenos
                     System.out.printf(" %-6s | %s\n", entry.getCryptoSymbol(), entry.getAmount().toPlainString());
                 }
                 System.out.println("---------------------");
@@ -279,66 +287,62 @@ public class App {
         }
     }
 
-    private static void handleDepositar() {
+    private static void handleDeposit() {
         System.out.println("\n--- Depositar Cripto ---");
-        // 1. Escolher a Cripto
         System.out.println("Criptomoedas disponíveis para depósito:");
         String[] symbols = SupportedCrypto.getAllSymbols();
+
         for (int i = 0; i < symbols.length; i++) {
             System.out.printf("%d. %s\n", i + 1, symbols[i]);
         }
+
         System.out.print("Escolha o número da cripto: ");
-        int choice = lerOpcao();
+        int choice = readOption();
 
         if (choice < 1 || choice > symbols.length) {
             System.out.println("\nOpção de cripto inválida.");
             return;
         }
+
         String selectedSymbol = symbols[choice - 1];
 
-        // 2. Ler a Quantidade
         System.out.print("Digite a quantidade a depositar (ex: 0.05): ");
         BigDecimal amount;
+
         try {
             amount = scanner.nextBigDecimal();
-            scanner.nextLine(); // Consome newline
-            // Validação simples da quantidade
+            scanner.nextLine();
+
             if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
                 System.out.println("\nERRO: A quantidade deve ser um valor positivo.");
                 return;
             }
         } catch (InputMismatchException e) {
             System.out.println("\nERRO: Quantidade digitada inválida.");
-            scanner.nextLine(); // Consome entrada inválida
+            scanner.nextLine();
             return;
         }
 
-        // 3. Processar o Depósito (Simulado)
         try {
-            // Verifica se já existe saldo para essa cripto
-            Optional<WalletEntry> entryOpt = walletEntryDao.findByWalletIdAndSymbol(carteiraLogada.getId(), selectedSymbol);
+            Optional<WalletEntry> entryOpt = walletEntryDao.findByWalletIdAndSymbol(loggedInWallet.getId(), selectedSymbol);
 
             if (entryOpt.isPresent()) {
-                // Atualiza saldo existente
                 WalletEntry entry = entryOpt.get();
-                BigDecimal novoSaldo = entry.getAmount().add(amount);
-                // Usar o método de update que busca por walletId e Symbol é mais prático aqui
-                walletEntryDao.updateAmount(carteiraLogada.getId(), selectedSymbol, novoSaldo);
+                BigDecimal newBalance = entry.getAmount().add(amount);
+                walletEntryDao.updateAmount(loggedInWallet.getId(), selectedSymbol, newBalance);
             } else {
-                // Cria nova entrada de saldo
-                WalletEntry novaEntry = new WalletEntry(carteiraLogada.getId(), selectedSymbol, amount);
-                walletEntryDao.save(novaEntry);
+                WalletEntry newEntry = new WalletEntry(loggedInWallet.getId(), selectedSymbol, amount);
+                walletEntryDao.save(newEntry);
             }
 
-            // 4. Registrar a Transação
             Transaction tx = new Transaction();
-            tx.setType("DEPOSIT"); // Tipo da transação
-            tx.setDestinationWalletId(carteiraLogada.getId()); // O destino é a carteira logada
-            tx.setSourceWalletId(null); // Origem nula para depósito
+            tx.setType("DEPOSIT");
+            tx.setDestinationWalletId(loggedInWallet.getId());
+            tx.setSourceWalletId(null);
             tx.setCryptoSymbol(selectedSymbol);
             tx.setAmount(amount);
             tx.setTransactionDate(java.time.LocalDateTime.now());
-            tx.setStatus("COMPLETED"); // Simulação: depósito sempre completo
+            tx.setStatus("COMPLETED");
             transactionDao.save(tx);
 
             System.out.printf("\nDepósito de %s %s processado com sucesso!\n", amount.toPlainString(), selectedSymbol);
@@ -350,7 +354,7 @@ public class App {
         }
     }
 
-    private static void handleSacar() {
+    private static void handleWithdraw() {
         System.out.println("\n--- Sacar Cripto ---");
         System.out.println("!!! FUNCIONALIDADE AINDA NÃO IMPLEMENTADA !!!");
 
@@ -365,7 +369,7 @@ public class App {
         // 8. Se não tiver saldo: Mensagem de erro.
     }
 
-    private static void handleTransferir() {
+    private static void handleTransfer() {
         System.out.println("\n--- Transferir Cripto ---");
         System.out.println("!!! FUNCIONALIDADE AINDA NÃO IMPLEMENTADA !!!");
 
@@ -387,11 +391,10 @@ public class App {
         // 12. Informar sucesso ou falha.
     }
 
-    private static void handleVerExtrato() {
+    private static void handleViewStatement() {
         System.out.println("\n--- Extrato da Conta (Últimas 20 Transações) ---");
         try {
-            // Busca as últimas 20 transações da carteira logada
-            List<Transaction> transactions = transactionDao.findRecentByWalletId(carteiraLogada.getId(), 20);
+            List<Transaction> transactions = transactionDao.findRecentByWalletId(loggedInWallet.getId(), 20);
 
             if (transactions.isEmpty()) {
                 System.out.println("Nenhuma transação registrada para esta carteira.");
@@ -400,18 +403,18 @@ public class App {
                 System.out.println("Data/Hora           | Tipo       | Cripto | Quantidade | De/Para     | Status");
                 System.out.println("-------------------|------------|--------|------------|-------------|-----------");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
                 for (Transaction tx : transactions) {
-                    String dePara = "-";
+                    String fromTo = "-";
                     if ("DEPOSIT".equals(tx.getType())) {
-                        dePara = "Depósito";
+                        fromTo = "Depósito";
                     } else if ("WITHDRAWAL".equals(tx.getType())) {
-                        dePara = "Saque";
+                        fromTo = "Saque";
                     } else if ("TRANSFER".equals(tx.getType())) {
-                        // Verifica se a carteira logada foi a origem ou destino
-                        if (carteiraLogada.getId() == tx.getSourceWalletId()) {
-                            dePara = "Env->W:" + tx.getDestinationWalletId(); // Enviou para carteira X
+                        if (loggedInWallet.getId() == tx.getSourceWalletId()) {
+                            fromTo = "Env->W:" + tx.getDestinationWalletId();
                         } else {
-                            dePara = "Rec<-W:" + tx.getSourceWalletId(); // Recebeu da carteira Y
+                            fromTo = "Rec<-W:" + tx.getSourceWalletId();
                         }
                     }
 
@@ -420,7 +423,7 @@ public class App {
                             tx.getType() != null ? tx.getType() : "N/A",
                             tx.getCryptoSymbol() != null ? tx.getCryptoSymbol() : "N/A",
                             tx.getAmount() != null ? tx.getAmount().toPlainString() : "N/A",
-                            dePara,
+                            fromTo,
                             tx.getStatus() != null ? tx.getStatus() : "N/A");
                 }
                 System.out.println("---------------------------------------------------------------------------------------------------");
@@ -430,12 +433,12 @@ public class App {
         }
     }
 
-    private static void handleEditarUsuario() {
+    private static void handleEditUser() {
         System.out.println("\n--- Editar Meus Dados ---");
-        // Busca o usuário logado novamente para garantir dados atualizados
         Optional<Users> userOpt = Optional.empty();
+
         try {
-            userOpt = usersDao.findById(usuarioLogado.getId());
+            userOpt = usersDao.findById(loggedInUser.getId());
         } catch (SQLException e) {
             System.err.println("ERRO ao buscar dados do usuário para edição: " + e.getMessage());
             return;
@@ -443,50 +446,48 @@ public class App {
 
         if (!userOpt.isPresent()) {
             System.err.println("ERRO: Não foi possível encontrar os dados do usuário logado.");
-            handleLogout(); // Desloga se não achar mais o usuário
+            handleLogout();
             return;
         }
+
         Users currentUser = userOpt.get();
 
         System.out.println("Deixe em branco para não alterar.");
 
-        System.out.print("Novo nome [" + currentUser.getNome() + "]: ");
-        String novoNome = scanner.nextLine();
+        System.out.print("Novo nome [" + currentUser.getUserName() + "]: ");
+        String newName = scanner.nextLine();
         System.out.print("Novo email [" + currentUser.getEmail() + "]: ");
-        String novoEmail = scanner.nextLine();
+        String newEmail = scanner.nextLine();
         // TODO: Validar formato do novo email, verificar se já existe (se for diferente do atual)
-        System.out.print("Novo telefone [" + currentUser.getTelefone() + "]: ");
-        String novoTelefone = scanner.nextLine();
+        System.out.print("Novo telefone [" + currentUser.getPhoneNumber() + "]: ");
+        String newPhoneNumber = scanner.nextLine();
         System.out.print("Nova senha (deixe em branco para não alterar): ");
-        String novaSenha = scanner.nextLine();
-        System.out.print("Manter usuário ativo? (S/N) [" + (currentUser.isAtivo() ? "S" : "N") + "]: ");
-        String ativoInput = scanner.nextLine();
+        String newPassword = scanner.nextLine();
+        System.out.print("Manter usuário ativo? (S/N) [" + (currentUser.isActive() ? "S" : "N") + "]: ");
+        String activeInput = scanner.nextLine();
 
-        // Atualiza o objeto currentUser com os novos dados (se fornecidos)
-        if (novoNome != null && !novoNome.trim().isEmpty()) {
-            currentUser.setNome(novoNome.trim());
+        if (newName != null && !newName.trim().isEmpty()) {
+            currentUser.setUserName(newName.trim());
         }
-        if (novoEmail != null && !novoEmail.trim().isEmpty()) {
-            // Adicionar verificação aqui se o novo email já existe por outro usuário!
-            currentUser.setEmail(novoEmail.trim());
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            currentUser.setEmail(newEmail.trim());
         }
-        if (novoTelefone != null && !novoTelefone.trim().isEmpty()) {
-            currentUser.setTelefone(novoTelefone.trim());
+        if (newPhoneNumber != null && !newPhoneNumber.trim().isEmpty()) {
+            currentUser.setPhoneNumber(newPhoneNumber.trim());
         }
-        if (novaSenha != null && !novaSenha.isEmpty()) {
-            currentUser.setSenha(novaSenha); // DAO fará o hash se necessário
+        if (newPassword != null && !newPassword.isEmpty()) {
+            currentUser.setPassword(newPassword);
         } else {
-            currentUser.setSenha(null); // Indica para o DAO não atualizar a senha
+            currentUser.setPassword(null);
         }
-        if (ativoInput != null && !ativoInput.trim().isEmpty()) {
-            currentUser.setAtivo(ativoInput.trim().equalsIgnoreCase("S"));
+        if (activeInput != null && !activeInput.trim().isEmpty()) {
+            currentUser.setActive(activeInput.trim().equalsIgnoreCase("S"));
         }
 
         try {
             usersDao.update(currentUser);
             System.out.println("\nDados atualizados com sucesso!");
-            // Atualiza o objeto usuarioLogado com os novos dados
-            usuarioLogado = currentUser;
+            loggedInUser = currentUser;
         } catch (SQLException e) {
             System.err.println("\nERRO no Banco de Dados ao atualizar usuário: " + e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -496,24 +497,23 @@ public class App {
         }
     }
 
-    private static void handleDeletarUsuario() {
+    private static void handleDeleteUser() {
         System.out.println("\n--- Deletar Minha Conta ---");
         System.out.println("!!! ATENÇÃO !!! Esta ação é irreversível e apagará seu usuário e sua carteira.");
         System.out.print("Digite sua senha atual para confirmar a exclusão: ");
-        String senhaConfirm = scanner.nextLine();
+        String confirmPassword = scanner.nextLine();
 
         try {
-            // Re-buscar o usuário para pegar o hash atual
-            Optional<Users> userOpt = usersDao.findById(usuarioLogado.getId());
+            Optional<Users> userOpt = usersDao.findById(loggedInUser.getId());
             if (!userOpt.isPresent()) {
                 System.err.println("ERRO: Usuário não encontrado.");
                 handleLogout();
                 return;
             }
+
             Users userToDelete = userOpt.get();
 
-            // Verificar a senha
-            if (usersDao.checkPassword(senhaConfirm, userToDelete.getSenha())) {
+            if (usersDao.checkPassword(confirmPassword, userToDelete.getPassword())) {
                 System.out.print("Confirmação final. Tem certeza que deseja deletar sua conta? (S/N): ");
                 String confirm = scanner.nextLine();
                 if ("S".equalsIgnoreCase(confirm)) {
@@ -523,10 +523,9 @@ public class App {
                     // 3. Deletar Transações? (Opcional, pode querer manter histórico)
                     // 4. Deletar Usuário (usersDao.delete)
 
-                    // Simplesmente deletando o usuário por enquanto:
                     usersDao.delete(userToDelete.getId());
                     System.out.println("\nUsuário deletado com sucesso.");
-                    handleLogout(); // Desloga o usuário
+                    handleLogout();
 
                 } else {
                     System.out.println("\nExclusão cancelada.");
@@ -541,22 +540,22 @@ public class App {
         }
     }
 
-    private static void handleListarTodosUsuarios() {
+    private static void handleListAllUsers() {
         System.out.println("\n--- Lista de Todos os Usuários (Apenas Teste) ---");
         try {
-            List<Users> todosUsuarios = usersDao.findAll(); // Usa usersDao
-            if (todosUsuarios.isEmpty()) {
+            List<Users> allUsers = usersDao.findAll();
+            if (allUsers.isEmpty()) {
                 System.out.println("Nenhum usuário registrado no sistema.");
             } else {
                 System.out.println("-----------------------------------------------------");
                 System.out.println(" ID | Nome                 | Email                | Ativo");
                 System.out.println("----|----------------------|----------------------|-------");
-                for (Users u : todosUsuarios) {
+                for (Users u : allUsers) {
                     System.out.printf(" %-2d | %-20s | %-20s | %s\n",
                             u.getId(),
-                            u.getNome().length() > 20 ? u.getNome().substring(0, 17) + "..." : u.getNome(),
+                            u.getUserName().length() > 20 ? u.getUserName().substring(0, 17) + "..." : u.getUserName(),
                             u.getEmail().length() > 20 ? u.getEmail().substring(0, 17) + "..." : u.getEmail(),
-                            u.isAtivo() ? "Sim" : "Não");
+                            u.isActive() ? "Sim" : "Não");
                 }
                 System.out.println("-----------------------------------------------------");
             }
@@ -564,8 +563,4 @@ public class App {
             System.err.println("\nERRO ao listar usuários: " + e.getMessage());
         }
     }
-
-    // Removidos métodos não mais necessários:
-    // associateCompanyToUser, displayUserInfo, displayWalletInfo (agora handleVerSaldo),
-    // displayCompanyInfo, sendAmountFromCompany, saveDataToFile
 }

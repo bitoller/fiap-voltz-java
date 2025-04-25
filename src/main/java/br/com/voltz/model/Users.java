@@ -7,31 +7,32 @@ import java.time.LocalDateTime;
 
 public class Users {
     private int id;
-    private String nome;
+    private String userName;
     private String cpfCnpj;
     private String email;
-    private String telefone;
-    private String senha;
-    private boolean ativo;
+    private String phoneNumber;
+    private String password;
+    private boolean active;
 
     @JsonAdapter(LocalDateTimeAdapter.class)
-    private LocalDateTime dataCriacao;
+    private LocalDateTime dateCreated;
 
     @JsonAdapter(LocalDateTimeAdapter.class)
-    private LocalDateTime dataAtualizacao;
+    private LocalDateTime dateUpdated;
 
-    public Users(String nome, String cpfCnpj, String email, String telefone, String senha, boolean ativo) {
-        this.nome = nome;
+    public Users(String userName, String cpfCnpj, String email, String phoneNumber, String password, boolean active) {
+        this.userName = userName;
         this.cpfCnpj = cpfCnpj;
         this.email = email;
-        this.telefone = telefone;
-        this.senha = senha;
-        this.ativo = ativo;
-        this.dataCriacao = LocalDateTime.now();
-        this.dataAtualizacao = LocalDateTime.now();
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.active = active;
+        this.dateCreated = LocalDateTime.now();
+        this.dateUpdated = LocalDateTime.now();
     }
 
-    public Users() {}
+    public Users() {
+    }
 
     public int getId() {
         return id;
@@ -41,12 +42,12 @@ public class Users {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getCpfCnpj() {
@@ -65,55 +66,55 @@ public class Users {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public boolean isAtivo() {
-        return ativo;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setAtivo(boolean ativo) {
-        this.ativo = ativo;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    public LocalDateTime getDataAtualizacao() {
-        return dataAtualizacao;
+    public LocalDateTime getDateUpdated() {
+        return dateUpdated;
     }
 
-    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
-        this.dataAtualizacao = dataAtualizacao;
+    public void setDateUpdated(LocalDateTime dateUpdated) {
+        this.dateUpdated = dateUpdated;
     }
 
-    public void atualizarData() {
-        this.dataAtualizacao = LocalDateTime.now();
+    public void updateDate() {
+        this.dateUpdated = LocalDateTime.now();
     }
 
-    public boolean isUsuarioAtivo() {
-        return this.ativo;
+    public boolean isActiveUser() {
+        return this.active;
     }
 
-    public String formatarCpfCnpj() {
+    public String formatCpfCnpj() {
         if (this.cpfCnpj == null || this.cpfCnpj.isEmpty()) {
             return this.cpfCnpj;
         }
@@ -126,28 +127,29 @@ public class Users {
         return this.cpfCnpj;
     }
 
-    public boolean validarCpf() {
+    public boolean validateCpf() {
         if (this.cpfCnpj == null || this.cpfCnpj.length() != 11 || !this.cpfCnpj.matches("\\d+")) {
             return false;
         }
         return true;
     }
 
-    public boolean validarCnpj() {
+    public boolean validateCnpj() {
         if (this.cpfCnpj == null || this.cpfCnpj.length() != 14 || !this.cpfCnpj.matches("\\d+")) {
             return false;
         }
         return true;
     }
 
-    public boolean validarCpfCnpj() {
+    public boolean validateCpfCnpj() {
         if (this.cpfCnpj == null) {
             return false;
         }
+
         if (this.cpfCnpj.length() == 11) {
-            return validarCpf();
+            return validateCpf();
         } else if (this.cpfCnpj.length() == 14) {
-            return validarCnpj();
+            return validateCnpj();
         }
         return false;
     }

@@ -35,74 +35,86 @@ CREATE SEQUENCE transactions_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 -- --------------------------------------------------------------------------
 
 -- Tabela: users
-CREATE TABLE users (
-                       id NUMBER(19) DEFAULT users_seq.NEXTVAL NOT NULL,
-                       nome VARCHAR2(255) NOT NULL,
-                       cpf_cnpj VARCHAR2(14) NOT NULL, -- Apenas dígitos
-                       email VARCHAR2(255) NOT NULL,
-                       telefone VARCHAR2(20),
-                       senha VARCHAR2(60) NOT NULL, -- Hash BCrypt
-                       ativo CHAR(1) DEFAULT 'S' NOT NULL, -- 'S' ou 'N'
-                       data_criacao TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
-                       data_atualizacao TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+CREATE TABLE users
+(
+    id           NUMBER(19) DEFAULT users_seq.NEXTVAL NOT NULL,
+    user_name    VARCHAR2(255) NOT NULL,
+    cpf_cnpj     VARCHAR2(14) NOT NULL,                   -- Apenas dígitos
+    email        VARCHAR2(255) NOT NULL,
+    phone_number VARCHAR2(20),
+    password     VARCHAR2(60) NOT NULL,                   -- Hash BCrypt
+    active       CHAR(1)   DEFAULT 'S'          NOT NULL, -- 'S' ou 'N'
+    date_created TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+    date_updated TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
     -- Constraints (Inline)
-                       CONSTRAINT pk_users PRIMARY KEY (id),
-                       CONSTRAINT uk_users_email UNIQUE (email),
-                       CONSTRAINT uk_users_cpf_cnpj UNIQUE (cpf_cnpj),
-                       CONSTRAINT ck_users_ativo CHECK (ativo IN ('S', 'N'))
+    CONSTRAINT pk_users PRIMARY KEY (id),
+    CONSTRAINT uk_users_email UNIQUE (email),
+    CONSTRAINT uk_users_cpf_cnpj UNIQUE (cpf_cnpj),
+    CONSTRAINT ck_users_active CHECK (users.active IN ('S', 'N'))
 );
-COMMENT ON COLUMN users.senha IS 'Hash da senha gerado com BCrypt';
-COMMENT ON COLUMN users.ativo IS 'S=Ativo, N=Inativo';
+COMMENT
+ON COLUMN users.senha IS 'Hash da senha gerado com BCrypt';
+COMMENT
+ON COLUMN users.ativo IS 'S=Ativo, N=Inativo';
 
 -- Tabela: wallets
-CREATE TABLE wallets (
-                         id NUMBER(19) DEFAULT wallets_seq.NEXTVAL NOT NULL,
-                         user_id NUMBER(19) NOT NULL,
-                         created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+CREATE TABLE wallets
+(
+    id         NUMBER(19) DEFAULT wallets_seq.NEXTVAL NOT NULL,
+    user_id    NUMBER(19) NOT NULL,
+    created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
     -- Constraints (Inline)
-                         CONSTRAINT pk_wallets PRIMARY KEY (id),
-                         CONSTRAINT fk_wallets_user FOREIGN KEY (user_id) REFERENCES users(id) -- Default ON DELETE é RESTRICT/NO ACTION
+    CONSTRAINT pk_wallets PRIMARY KEY (id),
+    CONSTRAINT fk_wallets_user FOREIGN KEY (user_id) REFERENCES users (id) -- Default ON DELETE é RESTRICT/NO ACTION
     -- Se quiser que deletar o usuário delete a carteira: ON DELETE CASCADE
 );
-COMMENT ON TABLE wallets IS 'Representa a carteira principal de um usuário';
+COMMENT
+ON TABLE wallets IS 'Representa a carteira principal de um usuário';
 
 -- Tabela: wallet_entries
-CREATE TABLE wallet_entries (
-                                id NUMBER(19) DEFAULT wallet_entries_seq.NEXTVAL NOT NULL,
-                                wallet_id NUMBER(19) NOT NULL,
-                                crypto_symbol VARCHAR2(10) NOT NULL, -- Ex: BTC, ETH
-                                amount NUMBER(38, 18) DEFAULT 0 NOT NULL, -- Saldo da cripto específica
-                                last_updated TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+CREATE TABLE wallet_entries
+(
+    id            NUMBER(19) DEFAULT wallet_entries_seq.NEXTVAL NOT NULL,
+    wallet_id     NUMBER(19) NOT NULL,
+    crypto_symbol VARCHAR2(10) NOT NULL,                                                                   -- Ex: BTC, ETH
+    amount        NUMBER(38, 18) DEFAULT 0 NOT NULL,                                                       -- Saldo da cripto específica
+    last_updated  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
     -- Constraints (Inline)
-                                CONSTRAINT pk_wallet_entries PRIMARY KEY (id),
-                                CONSTRAINT fk_wallet_entries_wallet FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE, -- Deletar carteira remove saldos
-                                CONSTRAINT uk_wallet_entries_symbol UNIQUE (wallet_id, crypto_symbol), -- Garante um saldo por cripto/carteira
-                                CONSTRAINT ck_wallet_entries_amount CHECK (amount >= 0) -- Saldo não negativo
+    CONSTRAINT pk_wallet_entries PRIMARY KEY (id),
+    CONSTRAINT fk_wallet_entries_wallet FOREIGN KEY (wallet_id) REFERENCES wallets (id) ON DELETE CASCADE, -- Deletar carteira remove saldos
+    CONSTRAINT uk_wallet_entries_symbol UNIQUE (wallet_id, crypto_symbol),                                 -- Garante um saldo por cripto/carteira
+    CONSTRAINT ck_wallet_entries_amount CHECK (amount >= 0)                                                -- Saldo não negativo
 );
-COMMENT ON TABLE wallet_entries IS 'Armazena o saldo de cada criptomoeda por carteira';
-COMMENT ON COLUMN wallet_entries.amount IS 'Quantidade da criptomoeda especificada em crypto_symbol';
+COMMENT
+ON TABLE wallet_entries IS 'Armazena o saldo de cada criptomoeda por carteira';
+COMMENT
+ON COLUMN wallet_entries.amount IS 'Quantidade da criptomoeda especificada em crypto_symbol';
 
 -- Tabela: transactions
-CREATE TABLE transactions (
-                              id NUMBER(19) DEFAULT transactions_seq.NEXTVAL NOT NULL,
-                              type VARCHAR2(20) NOT NULL, -- DEPOSIT, WITHDRAWAL, TRANSFER
-                              source_wallet_id NUMBER(19), -- NULL para DEPOSIT
-                              destination_wallet_id NUMBER(19), -- NULL para WITHDRAWAL
-                              crypto_symbol VARCHAR2(10) NOT NULL,
-                              amount NUMBER(38, 18) NOT NULL,
-                              transaction_date TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
-                              status VARCHAR2(20) NOT NULL, -- PENDING, COMPLETED, FAILED
+CREATE TABLE transactions
+(
+    id                    NUMBER(19) DEFAULT transactions_seq.NEXTVAL NOT NULL,
+    type                  VARCHAR2(20) NOT NULL,                                                                           -- DEPOSIT, WITHDRAWAL, TRANSFER
+    source_wallet_id      NUMBER(19),                                                                                      -- NULL para DEPOSIT
+    destination_wallet_id NUMBER(19),                                                                                      -- NULL para WITHDRAWAL
+    crypto_symbol         VARCHAR2(10) NOT NULL,
+    amount                NUMBER(38, 18) NOT NULL,
+    transaction_date      TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+    status                VARCHAR2(20) NOT NULL,                                                                           -- PENDING, COMPLETED, FAILED
     -- Constraints (Inline)
-                              CONSTRAINT pk_transactions PRIMARY KEY (id),
-                              CONSTRAINT fk_transactions_source_wallet FOREIGN KEY (source_wallet_id) REFERENCES wallets(id) ON DELETE SET NULL, -- Mantém Tx se wallet for deletada
-                              CONSTRAINT fk_transactions_dest_wallet FOREIGN KEY (destination_wallet_id) REFERENCES wallets(id) ON DELETE SET NULL, -- Mantém Tx se wallet for deletada
-                              CONSTRAINT ck_transactions_type CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER')),
-                              CONSTRAINT ck_transactions_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),
-                              CONSTRAINT ck_transactions_amount CHECK (amount > 0) -- Transação com valor positivo
+    CONSTRAINT pk_transactions PRIMARY KEY (id),
+    CONSTRAINT fk_transactions_source_wallet FOREIGN KEY (source_wallet_id) REFERENCES wallets (id) ON DELETE SET NULL,    -- Mantém Tx se wallet for deletada
+    CONSTRAINT fk_transactions_dest_wallet FOREIGN KEY (destination_wallet_id) REFERENCES wallets (id) ON DELETE SET NULL, -- Mantém Tx se wallet for deletada
+    CONSTRAINT ck_transactions_type CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER')),
+    CONSTRAINT ck_transactions_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),
+    CONSTRAINT ck_transactions_amount CHECK (amount > 0)                                                                   -- Transação com valor positivo
 );
-COMMENT ON TABLE transactions IS 'Histórico de movimentações de criptomoedas';
-COMMENT ON COLUMN transactions.type IS 'Tipo da transação: DEPOSIT, WITHDRAWAL, TRANSFER';
-COMMENT ON COLUMN transactions.status IS 'Status da transação: PENDING, COMPLETED, FAILED';
+COMMENT
+ON TABLE transactions IS 'Histórico de movimentações de criptomoedas';
+COMMENT
+ON COLUMN transactions.type IS 'Tipo da transação: DEPOSIT, WITHDRAWAL, TRANSFER';
+COMMENT
+ON COLUMN transactions.status IS 'Status da transação: PENDING, COMPLETED, FAILED';
 
 -- --------------------------------------------------------------------------
 -- Populando tabelas com dados iniciais (Exemplos)
@@ -120,11 +132,15 @@ COMMENT ON COLUMN transactions.status IS 'Status da transação: PENDING, COMPLE
 
 -- Supondo que o usuário com ID 1 foi criado pelo app:
 -- Criando a Wallet para o usuário 1
-INSERT INTO wallets (user_id) VALUES (1); -- Supondo que o ID do usuário Bianca seja 1
+INSERT INTO wallets (user_id)
+VALUES (1);
+-- Supondo que o ID do usuário Bianca seja 1
 
 -- Adicionando saldos (Wallet Entries) para a Wallet 1 (Supondo que o ID da wallet gerado seja 1)
-INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount) VALUES (1, 'BTC', 0.5);
-INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount) VALUES (1, 'ETH', 2.12345);
+INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount)
+VALUES (1, 'BTC', 0.5);
+INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount)
+VALUES (1, 'ETH', 2.12345);
 
 -- Criando uma transação de Depósito simulada para a Wallet 1
 INSERT INTO transactions (type, destination_wallet_id, crypto_symbol, amount, status)
@@ -136,27 +152,38 @@ VALUES ('DEPOSIT', 1, 'BTC', 0.5, 'COMPLETED');
 
 -- Supondo que o usuário com ID 2 foi criado:
 -- Criando a Wallet para o usuário 2
-INSERT INTO wallets (user_id) VALUES (2); -- Supondo ID 2 para Empresa Voltz
+INSERT INTO wallets (user_id)
+VALUES (2);
+-- Supondo ID 2 para Empresa Voltz
 
 -- Adicionando saldo para Wallet 2 (Supondo ID 2 para a wallet)
-INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount) VALUES (2, 'USDC', 10000.00); -- Exemplo com Stablecoin
+INSERT INTO wallet_entries (wallet_id, crypto_symbol, amount)
+VALUES (2, 'USDC', 10000.00);
+-- Exemplo com Stablecoin
 
 -- --------------------------------------------------------------------------
 -- Exemplos de Consultas (SELECT)
 -- --------------------------------------------------------------------------
 
 -- Ver todos os usuários
-SELECT id, nome, email, cpf_cnpj, ativo FROM users;
+SELECT id, user_name, email, cpf_cnpj, active
+FROM users;
 
 -- Ver carteira de um usuário específico (ex: user_id = 1)
-SELECT id, user_id, created_at FROM wallets WHERE user_id = 1;
+SELECT id, user_id, created_at
+FROM wallets
+WHERE user_id = 1;
 
 -- Ver saldos de uma carteira específica (ex: wallet_id = 1)
-SELECT crypto_symbol, amount, last_updated FROM wallet_entries WHERE wallet_id = 1;
+SELECT crypto_symbol, amount, last_updated
+FROM wallet_entries
+WHERE wallet_id = 1;
 
 -- Ver transações de uma carteira específica (ex: wallet_id = 1)
-SELECT * FROM transactions
-WHERE source_wallet_id = 1 OR destination_wallet_id = 1
+SELECT *
+FROM transactions
+WHERE source_wallet_id = 1
+   OR destination_wallet_id = 1
 ORDER BY transaction_date DESC;
 
 -- --------------------------------------------------------------------------
@@ -164,10 +191,17 @@ ORDER BY transaction_date DESC;
 -- --------------------------------------------------------------------------
 
 -- Atualizar telefone do usuário com id 1 (DAO faria isso e atualizaria data_atualizacao)
-UPDATE users SET telefone = '11987654321', data_atualizacao = SYSTIMESTAMP WHERE id = 1;
+UPDATE users
+SET phone_number = '11987654321',
+    date_updated = SYSTIMESTAMP
+WHERE id = 1;
 
 -- Simular adição de saldo via UPDATE (DAO faria isso e atualizaria last_updated)
-UPDATE wallet_entries SET amount = amount + 1.5, last_updated = SYSTIMESTAMP WHERE wallet_id = 1 AND crypto_symbol = 'ETH';
+UPDATE wallet_entries
+SET amount       = amount + 1.5,
+    last_updated = SYSTIMESTAMP
+WHERE wallet_id = 1
+  AND crypto_symbol = 'ETH';
 
 -- --------------------------------------------------------------------------
 -- Exemplo de Exclusão (DELETE) - Use com CUIDADO!

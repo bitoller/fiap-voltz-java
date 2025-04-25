@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class UsersDao {
 
-    private String hashPassword(String plainTextPassword){
+    private String hashPassword(String plainTextPassword) {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
             throw new IllegalArgumentException("Senha não pode ser vazia para hashing.");
         }
@@ -23,6 +23,7 @@ public class UsersDao {
         if (plainPassword == null || hashedPassword == null || hashedPassword.isEmpty() || !hashedPassword.startsWith("$2a$")) {
             return false;
         }
+
         try {
             return BCrypt.checkpw(plainPassword, hashedPassword);
         } catch (IllegalArgumentException e) {
@@ -32,18 +33,18 @@ public class UsersDao {
     }
 
     public int save(Users user) throws SQLException {
-        if (user == null || user.getEmail() == null || user.getSenha() == null) {
+        if (user == null || user.getEmail() == null || user.getPassword() == null) {
             throw new IllegalArgumentException("Objeto usuário, email ou senha não podem ser nulos para salvar.");
         }
 
         String sqlSeq = "SELECT users_seq.NEXTVAL FROM dual";
-        String sqlInsert = "INSERT INTO users (id, nome, cpf_cnpj, email, telefone, senha, ativo, data_criacao, data_atualizacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO users (id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int nextId = 0;
 
         try (Connection connection = ConnectionFactory.getConnection()) {
-            // 1. Obter o próximo ID da sequence
             try (PreparedStatement stmtSeq = connection.prepareStatement(sqlSeq);
                  ResultSet rsSeq = stmtSeq.executeQuery()) {
+
                 if (rsSeq.next()) {
                     nextId = rsSeq.getInt(1);
                 } else {
@@ -54,20 +55,21 @@ public class UsersDao {
             user.setId(nextId);
 
             try (PreparedStatement stmt = connection.prepareStatement(sqlInsert)) {
-                stmt.setInt(1, nextId); // Usa o ID obtido da sequence
-                stmt.setString(2, user.getNome());
+                stmt.setInt(1, nextId);
+                stmt.setString(2, user.getUserName());
                 stmt.setString(3, user.getCpfCnpj());
                 stmt.setString(4, user.getEmail());
-                stmt.setString(5, user.getTelefone());
-                stmt.setString(6, hashPassword(user.getSenha()));
-                stmt.setString(7, user.isAtivo() ? "S" : "N");
+                stmt.setString(5, user.getPhoneNumber());
+                stmt.setString(6, hashPassword(user.getPassword()));
+                stmt.setString(7, user.isActive() ? "S" : "N");
                 LocalDateTime now = LocalDateTime.now();
-                user.setDataCriacao(now);
-                user.setDataAtualizacao(now);
+                user.setDateCreated(now);
+                user.setDateUpdated(now);
                 stmt.setTimestamp(8, Timestamp.valueOf(now));
                 stmt.setTimestamp(9, Timestamp.valueOf(now));
 
                 int affectedRows = stmt.executeUpdate();
+
                 if (affectedRows == 0) {
                     throw new SQLException("Falha ao criar usuário, nenhuma linha afetada (INSERT).");
                 }
@@ -82,38 +84,39 @@ public class UsersDao {
             throw new IllegalArgumentException("Usuário inválido ou sem ID para atualização.");
         }
         LocalDateTime now = LocalDateTime.now();
-        user.setDataAtualizacao(now);
+        user.setDateUpdated(now);
 
-        boolean updatePassword = user.getSenha() != null && !user.getSenha().isEmpty() && !user.getSenha().startsWith("$2a$");
+        boolean updatePassword = user.getPassword() != null && !user.getPassword().isEmpty() && !user.getPassword().startsWith("$2a$");
 
         String sql;
+
         if (updatePassword) {
-            sql = "UPDATE users SET nome = ?, cpf_cnpj = ?, email = ?, telefone = ?, senha = ?, ativo = ?, data_atualizacao = ? WHERE id = ?";
+            sql = "UPDATE users SET user_name = ?, cpf_cnpj = ?, email = ?, phone_number = ?, password = ?, active = ?, date_updated = ? WHERE id = ?";
         } else {
-            sql = "UPDATE users SET nome = ?, cpf_cnpj = ?, email = ?, telefone = ?, ativo = ?, data_atualizacao = ? WHERE id = ?";
+            sql = "UPDATE users SET user_name = ?, cpf_cnpj = ?, email = ?, phone_number = ?, active = ?, date_updated = ? WHERE id = ?";
         }
 
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, user.getNome());
+            stmt.setString(1, user.getUserName());
             stmt.setString(2, user.getCpfCnpj());
             stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getTelefone());
+            stmt.setString(4, user.getPhoneNumber());
 
             int parameterIndex;
+
             if (updatePassword) {
-                stmt.setString(5, hashPassword(user.getSenha()));
-                stmt.setString(6, user.isAtivo() ? "S" : "N");
+                stmt.setString(5, hashPassword(user.getPassword()));
+                stmt.setString(6, user.isActive() ? "S" : "N");
                 stmt.setTimestamp(7, Timestamp.valueOf(now));
                 parameterIndex = 8;
             } else {
-                stmt.setString(5, user.isAtivo() ? "S" : "N");
+                stmt.setString(5, user.isActive() ? "S" : "N");
                 stmt.setTimestamp(6, Timestamp.valueOf(now));
                 parameterIndex = 7;
             }
             stmt.setInt(parameterIndex, user.getId());
-
             stmt.executeUpdate();
         }
     }
@@ -124,6 +127,7 @@ public class UsersDao {
             throw new IllegalArgumentException("ID de usuário inválido para exclusão.");
         }
         String sql = "DELETE FROM users WHERE id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -135,10 +139,12 @@ public class UsersDao {
     public Optional<Users> findById(int id) throws SQLException {
         if (id <= 0) return Optional.empty();
 
-        String sql = "SELECT id, nome, cpf_cnpj, email, telefone, senha, ativo, data_criacao, data_atualizacao FROM users WHERE id = ?";
+        String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users WHERE id = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToUsers(rs));
@@ -152,10 +158,12 @@ public class UsersDao {
     public Optional<Users> findByEmail(String email) throws SQLException {
         if (email == null || email.trim().isEmpty()) return Optional.empty();
 
-        String sql = "SELECT id, nome, cpf_cnpj, email, telefone, senha, ativo, data_criacao, data_atualizacao FROM users WHERE email = ?";
+        String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users WHERE email = ?";
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToUsers(rs));
@@ -168,7 +176,8 @@ public class UsersDao {
 
     public List<Users> findAll() throws SQLException {
         List<Users> users = new ArrayList<>();
-        String sql = "SELECT id, nome, cpf_cnpj, email, telefone, senha, ativo, data_criacao, data_atualizacao FROM users";
+        String sql = "SELECT id, user_name, cpf_cnpj, email, phone_number, password, active, date_created, date_updated FROM users";
+
         try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -183,20 +192,22 @@ public class UsersDao {
     private Users mapResultSetToUsers(ResultSet rs) throws SQLException {
         Users user = new Users();
         user.setId(rs.getInt("id"));
-        user.setNome(rs.getString("nome"));
+        user.setUserName(rs.getString("user_name"));
         user.setCpfCnpj(rs.getString("cpf_cnpj"));
         user.setEmail(rs.getString("email"));
-        user.setTelefone(rs.getString("telefone"));
-        user.setSenha(rs.getString("senha")); // Guarda o HASH
-        user.setAtivo("S".equalsIgnoreCase(rs.getString("ativo")));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setPassword(rs.getString("password"));
+        user.setActive("S".equalsIgnoreCase(rs.getString("active")));
 
-        Timestamp tsCriacao = rs.getTimestamp("data_criacao");
-        if (tsCriacao != null) {
-            user.setDataCriacao(tsCriacao.toLocalDateTime());
+        Timestamp tsCreated = rs.getTimestamp("date_created");
+
+        if (tsCreated != null) {
+            user.setDateCreated(tsCreated.toLocalDateTime());
         }
-        Timestamp tsAtualizacao = rs.getTimestamp("data_atualizacao");
-        if (tsAtualizacao != null) {
-            user.setDataAtualizacao(tsAtualizacao.toLocalDateTime());
+        Timestamp tsUpdated = rs.getTimestamp("date_updated");
+
+        if (tsUpdated != null) {
+            user.setDateUpdated(tsUpdated.toLocalDateTime());
         }
         return user;
     }

@@ -34,8 +34,13 @@ public enum SupportedCrypto {
         this.symbol = symbol;
     }
 
-    public String getName() { return name; }
-    public String getSymbol() { return symbol; }
+    public String getName() {
+        return name;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
 
     public static Optional<SupportedCrypto> fromSymbol(String symbol) {
         if (symbol == null || symbol.trim().isEmpty()) {
