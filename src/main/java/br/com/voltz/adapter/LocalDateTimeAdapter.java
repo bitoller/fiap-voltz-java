@@ -25,7 +25,7 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         if (in != null && in.peek() != null) {
             return LocalDateTime.parse(in.nextString(), formatter);
         }
-        
+
         return null;
     }
 }

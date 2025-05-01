@@ -20,6 +20,7 @@ import br.com.voltz.model.Transaction;
 import br.com.voltz.model.Users;
 import br.com.voltz.model.Wallet;
 import br.com.voltz.model.WalletEntry;
+import br.com.voltz.util.ValidationUtil;
 
 public class App {
     private static final Scanner scanner = new Scanner(System.in);
@@ -189,16 +190,45 @@ public class App {
         System.out.println("\n--- Registrar Novo Usuário ---");
         System.out.print("Nome completo: ");
         String userName = scanner.nextLine();
-        System.out.print("CPF ou CNPJ (apenas números): ");
-        String cpfCnpj = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        // TODO: Adicionar validação de formato de email
+
+        String cpfCnpj;
+
+        do {
+            System.out.print("CPF ou CNPJ (apenas números): ");
+            cpfCnpj = scanner.nextLine();
+
+            if (!ValidationUtil.validateCpfCnpj(cpfCnpj)) {
+                System.out.println(
+                        "\nERRO: CPF/CNPJ inválido. Por favor, insira um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.");
+            }
+        } while (!ValidationUtil.validateCpfCnpj(cpfCnpj));
+
+        String email;
+
+        do {
+            System.out.print("Email: ");
+            email = scanner.nextLine();
+
+            if (!ValidationUtil.isValidEmail(email)) {
+                System.out.println("\nERRO: Formato de email inválido. Por favor, insira um email válido.");
+            }
+        } while (!ValidationUtil.isValidEmail(email));
+
         System.out.print("Telefone: ");
         String phoneNumber = scanner.nextLine();
-        System.out.print("Senha: ");
-        String password = scanner.nextLine();
-        // TODO: Adicionar validação de força da senha
+
+        String password;
+
+        do {
+            System.out.println("\nRequisitos de senha:");
+            System.out.println(ValidationUtil.getPasswordRequirements());
+            System.out.print("Senha: ");
+            password = scanner.nextLine();
+
+            if (!ValidationUtil.isStrongPassword(password)) {
+                System.out.println("\nERRO: A senha não atende aos requisitos mínimos de segurança.");
+            }
+        } while (!ValidationUtil.isStrongPassword(password));
 
         Users newUser = new Users(userName, cpfCnpj, email, phoneNumber, password, true);
 
@@ -295,7 +325,6 @@ public class App {
                     System.out.printf(" %-6s | %s\n", entry.getCryptoSymbol(), entry.getAmount().toPlainString());
                 }
                 System.out.println("---------------------");
-                // TODO (Opcional): Buscar preços via API e mostrar valor total em R$/USD
             }
         } catch (SQLException e) {
             System.err.println("\nERRO ao buscar saldos: " + e.getMessage());
@@ -591,14 +620,58 @@ public class App {
 
         System.out.print("Novo nome [" + currentUser.getUserName() + "]: ");
         String newName = scanner.nextLine();
-        System.out.print("Novo email [" + currentUser.getEmail() + "]: ");
-        String newEmail = scanner.nextLine();
-        // TODO: Validar formato do novo email, verificar se já existe (se for diferente
-        // do atual)
+
+        String newEmail;
+
+        do {
+            System.out.print("Novo email [" + currentUser.getEmail() + "]: ");
+            newEmail = scanner.nextLine();
+
+            if (newEmail.trim().isEmpty()) {
+                newEmail = currentUser.getEmail();
+                break;
+            }
+
+            if (!ValidationUtil.isValidEmail(newEmail)) {
+                System.out.println("\nERRO: Formato de email inválido. Por favor, insira um email válido.");
+                continue;
+            }
+
+            try {
+                Optional<Users> existingUser = usersDao.findByEmail(newEmail);
+                if (existingUser.isPresent() && existingUser.get().getId() != currentUser.getId()) {
+                    System.out.println("\nERRO: Este email já está em uso por outro usuário.");
+                    continue;
+                }
+                break;
+            } catch (SQLException e) {
+                System.err.println("\nERRO ao verificar email: " + e.getMessage());
+                return;
+            }
+        } while (true);
+
         System.out.print("Novo telefone [" + currentUser.getPhoneNumber() + "]: ");
         String newPhoneNumber = scanner.nextLine();
-        System.out.print("Nova senha (deixe em branco para não alterar): ");
-        String newPassword = scanner.nextLine();
+
+        String newPassword;
+
+        do {
+            System.out.print("Nova senha (deixe em branco para não alterar): ");
+            newPassword = scanner.nextLine();
+
+            if (newPassword.trim().isEmpty()) {
+                newPassword = null;
+                break;
+            }
+
+            if (!ValidationUtil.isStrongPassword(newPassword)) {
+                System.out.println("\nERRO: A senha não atende aos requisitos mínimos de segurança.");
+                System.out.println(ValidationUtil.getPasswordRequirements());
+                continue;
+            }
+            break;
+        } while (true);
+
         System.out.print("Manter usuário ativo? (S/N) [" + (currentUser.isActive() ? "S" : "N") + "]: ");
         String activeInput = scanner.nextLine();
 
@@ -606,18 +679,14 @@ public class App {
             currentUser.setUserName(newName.trim());
         }
 
-        if (newEmail != null && !newEmail.trim().isEmpty()) {
-            currentUser.setEmail(newEmail.trim());
-        }
+        currentUser.setEmail(newEmail);
 
         if (newPhoneNumber != null && !newPhoneNumber.trim().isEmpty()) {
             currentUser.setPhoneNumber(newPhoneNumber.trim());
         }
 
-        if (newPassword != null && !newPassword.isEmpty()) {
+        if (newPassword != null) {
             currentUser.setPassword(newPassword);
-        } else {
-            currentUser.setPassword(null);
         }
 
         if (activeInput != null && !activeInput.trim().isEmpty()) {

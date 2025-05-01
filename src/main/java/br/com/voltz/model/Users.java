@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.google.gson.annotations.JsonAdapter;
 
 import br.com.voltz.adapter.LocalDateTimeAdapter;
+import br.com.voltz.util.ValidationUtil;
 
 public class Users {
     private int id;
@@ -116,46 +117,6 @@ public class Users {
     }
 
     public String formatCpfCnpj() {
-        if (this.cpfCnpj == null || this.cpfCnpj.isEmpty()) {
-            return this.cpfCnpj;
-        }
-
-        if (this.cpfCnpj.length() == 11) { // CPF
-            return this.cpfCnpj.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
-        } else if (this.cpfCnpj.length() == 14) {
-            return this.cpfCnpj.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
-        }
-
-        return this.cpfCnpj;
-    }
-
-    public boolean validateCpf() {
-        if (this.cpfCnpj == null || this.cpfCnpj.length() != 11 || !this.cpfCnpj.matches("\\d+")) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean validateCnpj() {
-        if (this.cpfCnpj == null || this.cpfCnpj.length() != 14 || !this.cpfCnpj.matches("\\d+")) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean validateCpfCnpj() {
-        if (this.cpfCnpj == null) {
-            return false;
-        }
-
-        if (this.cpfCnpj.length() == 11) {
-            return validateCpf();
-        } else if (this.cpfCnpj.length() == 14) {
-            return validateCnpj();
-        }
-
-        return false;
+        return ValidationUtil.formatCpfCnpj(this.cpfCnpj);
     }
 }
