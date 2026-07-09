@@ -59,7 +59,7 @@ public class WalletEntryDao {
             int affectedRows = stmt.executeUpdate();
 
             if (affectedRows == 0) {
-                System.err.printf("Aviso: Nenhuma entrada de carteira atualizada para walletId=%d e symbol=%s\n",
+                System.err.printf("Warning: No wallet entry updated for walletId=%d and symbol=%s\n",
                         walletId, cryptoSymbol);
             }
         }

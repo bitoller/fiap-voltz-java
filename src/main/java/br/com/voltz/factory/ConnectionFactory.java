@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ConnectionFactory {
     private static final String URL = "jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl";
-    private static final String USER = "rm553134";
-    private static final String PASSWORD = "060892";
+    private static final String USER = "";
+    private static final String PASSWORD = "";
 
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);

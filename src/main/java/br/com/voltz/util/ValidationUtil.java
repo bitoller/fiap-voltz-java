@@ -25,12 +25,12 @@ public class ValidationUtil {
 
     public static String getPasswordRequirements() {
         return """
-                A senha deve conter:
-                - Mínimo de 8 caracteres
-                - Pelo menos uma letra maiúscula
-                - Pelo menos uma letra minúscula
-                - Pelo menos um número
-                - Pelo menos um caractere especial (@#$%^&+=!)
+                The password must contain:
+                - Minimum of 8 characters
+                - At least one uppercase letter
+                - At least one lowercase letter
+                - At least one number
+                - At least one special character (@#$%^&+=!)
                 """;
     }
 

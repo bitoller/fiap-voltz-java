@@ -18,7 +18,7 @@ public class WalletDao {
 
     public int save(Wallet wallet) throws SQLException {
         if (wallet == null || wallet.getUserId() <= 0) {
-            throw new IllegalArgumentException("Wallet inválida ou sem userId para salvar.");
+            throw new IllegalArgumentException("Invalid wallet or missing userId for save.");
         }
 
         String sqlSeq = "SELECT wallets_seq.NEXTVAL FROM dual";
@@ -31,7 +31,7 @@ public class WalletDao {
                 if (rsSeq.next()) {
                     nextId = rsSeq.getInt(1);
                 } else {
-                    throw new SQLException("Não foi possível obter o próximo valor da sequence wallets_seq.");
+                    throw new SQLException("Could not obtain the next sequence value for wallets_seq.");
                 }
             }
 
@@ -46,7 +46,7 @@ public class WalletDao {
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new SQLException("Falha ao criar carteira, nenhuma linha afetada (INSERT).");
+                    throw new SQLException("Failed to create wallet, no rows affected (INSERT).");
                 }
             }
         }

@@ -26,7 +26,7 @@ public class TransactionDao extends BaseDao {
         BigDecimal amount = transaction.getAmount();
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new SQLException("O valor deve ser maior que zero");
+            throw new SQLException("The value must be greater than zero");
         }
 
         amount = amount.setScale(DEFAULT_DECIMAL_SCALE, java.math.RoundingMode.HALF_UP);

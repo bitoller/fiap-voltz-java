@@ -20,7 +20,7 @@ public class UsersDao {
 
     private String hashPassword(String plainTextPassword) {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
-            throw new IllegalArgumentException("Senha não pode ser vazia para hashing.");
+            throw new IllegalArgumentException("Password cannot be empty for hashing.");
         }
 
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
@@ -35,14 +35,14 @@ public class UsersDao {
         try {
             return BCrypt.checkpw(plainPassword, hashedPassword);
         } catch (IllegalArgumentException e) {
-            System.err.println("Erro ao verificar senha com BCrypt (hash malformado?): " + e.getMessage());
+            System.err.println("Error verifying password with BCrypt (malformed hash?): " + e.getMessage());
             return false;
         }
     }
 
     public int save(Users user) throws SQLException {
         if (user == null || user.getEmail() == null || user.getPassword() == null) {
-            throw new IllegalArgumentException("Objeto usuário, email ou senha não podem ser nulos para salvar.");
+            throw new IllegalArgumentException("User object, email, or password cannot be null to save.");
         }
 
         String sqlSeq = "SELECT users_seq.NEXTVAL FROM dual";
@@ -56,7 +56,7 @@ public class UsersDao {
                 if (rsSeq.next()) {
                     nextId = rsSeq.getInt(1);
                 } else {
-                    throw new SQLException("Não foi possível obter o próximo valor da sequence users_seq.");
+                    throw new SQLException("Could not obtain the next sequence value for users_seq.");
                 }
             }
 
@@ -79,7 +79,7 @@ public class UsersDao {
                 int affectedRows = stmt.executeUpdate();
 
                 if (affectedRows == 0) {
-                    throw new SQLException("Falha ao criar usuário, nenhuma linha afetada (INSERT).");
+                    throw new SQLException("Failed to create user, no rows affected (INSERT).");
                 }
             }
         }
@@ -88,7 +88,7 @@ public class UsersDao {
 
     public void update(Users user) throws SQLException {
         if (user == null || user.getId() <= 0) {
-            throw new IllegalArgumentException("Usuário inválido ou sem ID para atualização.");
+            throw new IllegalArgumentException("Invalid user or missing ID for update.");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -132,7 +132,7 @@ public class UsersDao {
 
     public void delete(int id) throws SQLException {
         if (id <= 0) {
-            throw new IllegalArgumentException("ID de usuário inválido para exclusão.");
+            throw new IllegalArgumentException("Invalid user ID for deletion.");
         }
 
         String sql = "DELETE FROM users WHERE id = ?";

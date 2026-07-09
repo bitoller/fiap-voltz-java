@@ -24,7 +24,7 @@ public abstract class BaseDao {
                 PreparedStatement stmt = connection.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
-                throw new SQLException("Não foi possível obter o próximo valor da sequência para " + sequenceName);
+                throw new SQLException("Could not obtain the next sequence value for " + sequenceName);
             }
             return rs.getInt(1);
         }
@@ -80,13 +80,13 @@ public abstract class BaseDao {
         } else if (value instanceof Boolean) {
             stmt.setString(index, ((Boolean) value) ? "S" : "N");
         } else {
-            throw new SQLException("Tipo de parâmetro não suportado: " + value.getClass());
+            throw new SQLException("Unsupported parameter type: " + value.getClass());
         }
     }
 
     protected void validateId(int id, String entityName) {
         if (id <= 0) {
-            throw new IllegalArgumentException("Inválido " + entityName + " ID: " + id);
+            throw new IllegalArgumentException("Invalid " + entityName + " ID: " + id);
         }
     }
 }

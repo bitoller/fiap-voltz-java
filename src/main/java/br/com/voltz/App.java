@@ -34,14 +34,14 @@ public class App {
     private static Wallet loggedInWallet = null;
 
     public static void main(String[] args) {
-        System.out.println("Bem-vindo ao Voltz Crypto Bank!");
+        System.out.println("Welcome to Voltz Crypto Bank!");
 
         try {
             ConnectionFactory.getConnection().close();
-            System.out.println("Conexão com o banco de dados estabelecida.");
+            System.out.println("Database connection established.");
         } catch (SQLException e) {
-            System.err.println("ERRO FATAL: Não foi possível conectar ao banco.");
-            System.err.println("Verifique URL, usuário, senha e se o banco está rodando.");
+            System.err.println("FATAL ERROR: Could not connect to the database.");
+            System.err.println("Check URL, user, password, and whether the database is running.");
             System.err.println(e.getMessage());
             return;
         }
@@ -58,13 +58,13 @@ public class App {
                         if (loggedInUser == null)
                             hangleRegisterUser();
                         else
-                            System.out.println("Opção inválida.");
+                            System.out.println("Invalid option.");
                         break;
                     case 2:
                         if (loggedInUser == null)
                             handleLogin();
                         else
-                            System.out.println("Opção inválida.");
+                            System.out.println("Invalid option.");
                         break;
                     case 3:
                         if (checkLogin())
@@ -105,7 +105,7 @@ public class App {
                         exit = true;
                         break;
                     default:
-                        System.out.println("Opção inválida. Tente novamente.");
+                        System.out.println("Invalid option. Tente novamente.");
                         break;
                 }
 
@@ -114,7 +114,7 @@ public class App {
                     scanner.nextLine();
                 }
             } catch (Exception e) {
-                System.err.println("\n!!! Ocorreu um erro inesperado: " + e.getMessage() + " !!!");
+                System.err.println("\n!!! An unexpected error occurred: " + e.getMessage() + " !!!");
             }
         }
         System.out.println("\nObrigado por usar o Voltz Crypto Bank!");
@@ -127,23 +127,23 @@ public class App {
         System.out.println("=========================");
 
         if (loggedInUser == null) {
-            System.out.println("1. Registrar Novo Usuário");
+            System.out.println("1. Register New User");
             System.out.println("2. Login");
             System.out.println("10. Listar Todos Usuários (Teste)");
-            System.out.println("12. Sair");
+            System.out.println("12. Exit");
         } else {
-            System.out.println("Usuário Logado: " + loggedInUser.getUserName() + " (ID: " + loggedInUser.getId() + ")");
+            System.out.println("Logged-in User: " + loggedInUser.getUserName() + " (ID: " + loggedInUser.getId() + ")");
             System.out.println("-------------------------");
-            System.out.println("3. Ver Saldo da Carteira");
-            System.out.println("4. Depositar Cripto");
-            System.out.println("5. Sacar Cripto");
-            System.out.println("6. Transferir Cripto");
-            System.out.println("7. Ver Extrato");
-            System.out.println("8. Editar Meus Dados");
-            System.out.println("9. Deletar Minha Conta");
+            System.out.println("3. View Wallet Balance");
+            System.out.println("4. Deposit Crypto");
+            System.out.println("5. Withdraw Crypto");
+            System.out.println("6. Transfer Crypto");
+            System.out.println("7. View Statement");
+            System.out.println("8. Edit My Profile");
+            System.out.println("9. Delete My Account");
             System.out.println("10. Listar Todos Usuários (Teste)");
             System.out.println("11. Logout");
-            System.out.println("12. Sair");
+            System.out.println("12. Exit");
         }
         System.out.print("Escolha uma opção: ");
     }
@@ -154,7 +154,7 @@ public class App {
             scanner.nextLine();
             return choice;
         } catch (InputMismatchException e) {
-            System.out.println("Erro: Entrada inválida. Por favor, digite um número.");
+            System.out.println("Error: Invalid input. Please enter a number.");
             scanner.nextLine();
             return -1;
         }
@@ -162,7 +162,7 @@ public class App {
 
     private static boolean checkLogin() {
         if (loggedInUser == null) {
-            System.out.println("\nERRO: Você precisa estar logado para realizar esta operação.");
+            System.out.println("\nERROR: You need to be logged in to perform this operation.");
             return false;
         }
 
@@ -173,13 +173,13 @@ public class App {
                     loggedInWallet = walletOpt.get();
                 } else {
                     System.err.println(
-                            "ERRO CRÍTICO: Carteira não encontrada para o usuário logado ID: " + loggedInUser.getId());
+                            "CRITICAL ERROR: Wallet not found for logged-in user ID: " + loggedInUser.getId());
                     System.err.println("Realizando logout forçado.");
                     handleLogout();
                     return false;
                 }
             } catch (SQLException e) {
-                System.err.println("ERRO ao buscar dados da carteira: " + e.getMessage());
+                System.err.println("ERROR fetching wallet data: " + e.getMessage());
                 return false;
             }
         }
@@ -187,19 +187,19 @@ public class App {
     }
 
     private static void hangleRegisterUser() {
-        System.out.println("\n--- Registrar Novo Usuário ---");
-        System.out.print("Nome completo: ");
+        System.out.println("\n--- Register New User ---");
+        System.out.print("Full name: ");
         String userName = scanner.nextLine();
 
         String cpfCnpj;
 
         do {
-            System.out.print("CPF ou CNPJ (apenas números): ");
+            System.out.print("CPF or CNPJ (digits only): ");
             cpfCnpj = scanner.nextLine();
 
             if (!ValidationUtil.validateCpfCnpj(cpfCnpj)) {
                 System.out.println(
-                        "\nERRO: CPF/CNPJ inválido. Por favor, insira um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.");
+                        "\nERROR: Invalid CPF/CNPJ. Please enter a valid CPF (11 digits) or CNPJ (14 digits).");
             }
         } while (!ValidationUtil.validateCpfCnpj(cpfCnpj));
 
@@ -210,23 +210,23 @@ public class App {
             email = scanner.nextLine();
 
             if (!ValidationUtil.isValidEmail(email)) {
-                System.out.println("\nERRO: Formato de email inválido. Por favor, insira um email válido.");
+                System.out.println("\nERROR: Invalid email format. Please enter a valid email.");
             }
         } while (!ValidationUtil.isValidEmail(email));
 
-        System.out.print("Telefone: ");
+        System.out.print("Phone: ");
         String phoneNumber = scanner.nextLine();
 
         String password;
 
         do {
-            System.out.println("\nRequisitos de senha:");
+            System.out.println("\nPassword requirements:");
             System.out.println(ValidationUtil.getPasswordRequirements());
-            System.out.print("Senha: ");
+            System.out.print("Password: ");
             password = scanner.nextLine();
 
             if (!ValidationUtil.isStrongPassword(password)) {
-                System.out.println("\nERRO: A senha não atende aos requisitos mínimos de segurança.");
+                System.out.println("\nERROR: Password does not meet the minimum security requirements.");
             }
         } while (!ValidationUtil.isStrongPassword(password));
 
@@ -234,7 +234,7 @@ public class App {
 
         try {
             if (usersDao.findByEmail(email).isPresent()) {
-                System.out.println("\nERRO: Este email já está cadastrado.");
+                System.out.println("\nERROR: This email is already registered.");
                 return;
             }
 
@@ -243,15 +243,15 @@ public class App {
 
             Wallet newWallet = new Wallet(newUserId);
             walletDao.save(newWallet);
-            System.out.println("Carteira criada com sucesso para o usuário.");
-            System.out.println("Agora você pode fazer o login.");
+            System.out.println("Wallet successfully created for the user.");
+            System.out.println("You can now log in.");
 
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao registrar: " + e.getMessage());
+            System.err.println("\nERROR in the database while registering: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            System.err.println("\nERRO de Validação: " + e.getMessage());
+            System.err.println("\nValidation ERROR: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante o registro: " + e.getMessage());
+            System.err.println("\nUnexpected error during registration: " + e.getMessage());
         }
     }
 
@@ -264,7 +264,7 @@ public class App {
         System.out.println("\n--- Login ---");
         System.out.print("Email: ");
         String email = scanner.nextLine();
-        System.out.print("Senha: ");
+        System.out.print("Password: ");
         String password = scanner.nextLine();
 
         try {
@@ -281,45 +281,45 @@ public class App {
                         if (walletOpt.isPresent()) {
                             loggedInWallet = walletOpt.get();
                             System.out
-                                    .println("\nLogin bem-sucedido! Bem-vindo(a), " + loggedInUser.getUserName() + "!");
+                                    .println("\nLogin successful! Welcome, " + loggedInUser.getUserName() + "!");
                         } else {
-                            System.err.println("ERRO CRÍTICO: Usuário existe mas não possui carteira associada!");
+                            System.err.println("CRITICAL ERROR: User exists but does not have an associated wallet!");
                             loggedInUser = null;
                         }
                     } else {
-                        System.out.println("\nERRO: Este usuário está inativo. Contate o suporte.");
+                        System.out.println("\nERROR: This user is inactive. Contact support.");
                     }
                 } else {
-                    System.out.println("\nERRO: Senha ou Email incorretos.");
+                    System.out.println("\nERROR: Incorrect password or email.");
                 }
             } else {
-                System.out.println("\nERRO: Senha ou Email incorretos.");
+                System.out.println("\nERROR: Incorrect password or email.");
             }
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados durante o login: " + e.getMessage());
+            System.err.println("\nERROR in the database during login: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante o login: " + e.getMessage());
+            System.err.println("\nUnexpected error during login: " + e.getMessage());
         }
     }
 
     private static void handleLogout() {
         loggedInUser = null;
         loggedInWallet = null;
-        System.out.println("\nLogout realizado com sucesso.");
+        System.out.println("\nLogout successful.");
     }
 
     private static void handleShowBalance() {
-        System.out.println("\n--- Saldo da Carteira (ID: " + loggedInWallet.getId() + ") ---");
+        System.out.println("\n--- Wallet Balance (ID: " + loggedInWallet.getId() + ") ---");
 
         try {
             List<WalletEntry> entries = walletEntryDao.findByWalletId(loggedInWallet.getId());
             loggedInWallet.setEntries(entries);
 
             if (entries.isEmpty()) {
-                System.out.println("Sua carteira está vazia. Que tal fazer um depósito?");
+                System.out.println("Your wallet is empty. How about making a deposit?");
             } else {
                 System.out.println("---------------------");
-                System.out.println(" Cripto | Quantidade");
+                System.out.println(" Crypto | Amount");
                 System.out.println("---------------------");
                 for (WalletEntry entry : entries) {
                     System.out.printf(" %-6s | %s\n", entry.getCryptoSymbol(), entry.getAmount().toPlainString());
@@ -327,29 +327,29 @@ public class App {
                 System.out.println("---------------------");
             }
         } catch (SQLException e) {
-            System.err.println("\nERRO ao buscar saldos: " + e.getMessage());
+            System.err.println("\nERROR fetching balances: " + e.getMessage());
         }
     }
 
     private static void handleDeposit() {
-        System.out.println("\n--- Depositar Cripto ---");
-        System.out.println("Criptomoedas disponíveis para depósito:");
+        System.out.println("\n--- Deposit Crypto ---");
+        System.out.println("Available cryptocurrencies for deposit:");
         String[] symbols = SupportedCrypto.getAllSymbols();
 
         for (int i = 0; i < symbols.length; i++) {
             System.out.printf("%d. %s\n", i + 1, symbols[i]);
         }
 
-        System.out.print("Escolha o número da cripto: ");
+        System.out.print("Choose the crypto number: ");
         int choice = readOption();
 
         if (choice < 1 || choice > symbols.length) {
-            System.out.println("\nOpção de cripto inválida.");
+            System.out.println("\nInvalid crypto option.");
             return;
         }
 
         String selectedSymbol = symbols[choice - 1];
-        BigDecimal amount = readAmount("depositar");
+        BigDecimal amount = readAmount("deposit");
 
         if (amount == null)
             return;
@@ -370,18 +370,18 @@ public class App {
             Transaction tx = createTransaction("DEPOSIT", null, loggedInWallet.getId(), selectedSymbol, amount);
             transactionDao.save(tx);
 
-            System.out.printf("\nDepósito de %s %s processado com sucesso!\n", amount.toPlainString(), selectedSymbol);
+            System.out.printf("\nDeposit of %s %s processed successfully!\n", amount.toPlainString(), selectedSymbol);
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao processar depósito: " + e.getMessage());
+            System.err.println("\nERROR in the database while processing deposit: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante o depósito: " + e.getMessage());
+            System.err.println("\nUnexpected error during deposit: " + e.getMessage());
         }
     }
 
     private static void handleWithdraw() {
-        System.out.println("\n--- Sacar Cripto ---");
+        System.out.println("\n--- Withdraw Crypto ---");
 
-        List<WalletEntry> entries = showAvailableCryptos("saque");
+        List<WalletEntry> entries = showAvailableCryptos("withdraw");
 
         if (entries == null)
             return;
@@ -391,21 +391,21 @@ public class App {
         if (selectedEntry == null)
             return;
 
-        BigDecimal amount = readAmount("sacar");
+        BigDecimal amount = readAmount("withdraw");
 
         if (amount == null)
             return;
 
         if (selectedEntry.getAmount().compareTo(amount) < 0) {
-            System.out.println("\nERRO: Saldo insuficiente para realizar o saque.");
+            System.out.println("\nERROR: Insufficient balance to perform the withdrawal.");
             return;
         }
 
-        System.out.print("Digite o endereço da carteira de destino: ");
+        System.out.print("Enter the destination wallet address: ");
         String destinationAddress = scanner.nextLine();
 
         if (destinationAddress == null || destinationAddress.trim().isEmpty()) {
-            System.out.println("\nERRO: Endereço de destino inválido.");
+            System.out.println("\nERROR: Invalid destination address.");
             return;
         }
 
@@ -417,22 +417,22 @@ public class App {
                     selectedEntry.getCryptoSymbol(), amount);
             transactionDao.save(tx);
 
-            System.out.printf("\nSaque de %s %s processado com sucesso!\n",
+            System.out.printf("\nWithdrawal of %s %s processed successfully!\n",
                     amount.toPlainString(),
                     selectedEntry.getCryptoSymbol());
-            System.out.println("Enviado para: " + destinationAddress);
+            System.out.println("Sent to: " + destinationAddress);
 
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao processar saque: " + e.getMessage());
+            System.err.println("\nERROR in the database while processing withdrawal: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante o saque: " + e.getMessage());
+            System.err.println("\nUnexpected error during withdrawal: " + e.getMessage());
         }
     }
 
     private static void handleTransfer() {
-        System.out.println("\n--- Transferir Cripto ---");
+        System.out.println("\n--- Transfer Crypto ---");
 
-        List<WalletEntry> entries = showAvailableCryptos("transferência");
+        List<WalletEntry> entries = showAvailableCryptos("transfer");
 
         if (entries == null)
             return;
@@ -442,21 +442,21 @@ public class App {
         if (selectedEntry == null)
             return;
 
-        BigDecimal amount = readAmount("transferir");
+        BigDecimal amount = readAmount("transfer");
 
         if (amount == null)
             return;
 
         if (selectedEntry.getAmount().compareTo(amount) < 0) {
-            System.out.println("\nERRO: Saldo insuficiente para realizar a transferência.");
+            System.out.println("\nERROR: Insufficient balance to perform the transfer.");
             return;
         }
 
-        System.out.print("Digite o email do usuário destinatário: ");
+        System.out.print("Enter the recipient user email: ");
         String destinationEmail = scanner.nextLine();
 
         if (destinationEmail == null || destinationEmail.trim().isEmpty()) {
-            System.out.println("\nERRO: Email do destinatário inválido.");
+            System.out.println("\nERROR: Invalid recipient email.");
             return;
         }
 
@@ -464,21 +464,21 @@ public class App {
             Optional<Users> destinationUserOpt = usersDao.findByEmail(destinationEmail);
 
             if (!destinationUserOpt.isPresent()) {
-                System.out.println("\nERRO: Usuário destinatário não encontrado.");
+                System.out.println("\nERROR: Recipient user not found.");
                 return;
             }
 
             Users destinationUser = destinationUserOpt.get();
 
             if (!destinationUser.isActive()) {
-                System.out.println("\nERRO: A conta do usuário destinatário está inativa.");
+                System.out.println("\nERROR: Recipient user account is inactive.");
                 return;
             }
 
             Optional<Wallet> destinationWalletOpt = walletDao.findByUserId(destinationUser.getId());
 
             if (!destinationWalletOpt.isPresent()) {
-                System.out.println("\nERRO: Carteira do destinatário não encontrada.");
+                System.out.println("\nERROR: Recipient wallet not found.");
                 return;
             }
 
@@ -512,17 +512,17 @@ public class App {
 
                 connection.commit();
 
-                System.out.printf("\nTransferência de %s %s processada com sucesso!\n",
+                System.out.printf("\nTransfer of %s %s processed successfully!\n",
                         amount.toPlainString(),
                         selectedEntry.getCryptoSymbol());
-                System.out.println("Enviado para: " + destinationUser.getUserName() + " (" + destinationEmail + ")");
+                System.out.println("Sent to: " + destinationUser.getUserName() + " (" + destinationEmail + ")");
 
             } catch (Exception e) {
                 if (connection != null) {
                     try {
                         connection.rollback();
                     } catch (SQLException rollbackEx) {
-                        System.err.println("ERRO ao reverter transação: " + rollbackEx.getMessage());
+                        System.err.println("ERROR rolling back transaction: " + rollbackEx.getMessage());
                     }
                 }
                 throw e;
@@ -532,32 +532,32 @@ public class App {
                         connection.setAutoCommit(true);
                         connection.close();
                     } catch (SQLException closeEx) {
-                        System.err.println("ERRO ao fechar conexão: " + closeEx.getMessage());
+                        System.err.println("ERROR closing connection: " + closeEx.getMessage());
                     }
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao processar transferência: " + e.getMessage());
+            System.err.println("\nERROR in the database while processing transfer: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante a transferência: " + e.getMessage());
+            System.err.println("\nUnexpected error during transfer: " + e.getMessage());
         }
     }
 
     private static void handleViewStatement() {
-        System.out.println("\n--- Extrato da Conta (Últimas 20 Transações) ---");
+        System.out.println("\n--- Account Statement (Last 20 Transactions) ---");
 
         try {
             List<Transaction> transactions = transactionDao.findRecentByWalletId(loggedInWallet.getId(), 20);
 
             if (transactions.isEmpty()) {
-                System.out.println("Nenhuma transação registrada para esta carteira.");
+                System.out.println("No transactions recorded for this wallet.");
                 return;
             }
 
             System.out.println(
                     "---------------------------------------------------------------------------------------------------");
-            System.out.println("Data/Hora           | Tipo       | Cripto | Quantidade | De/Para     | Status");
+            System.out.println("Date/Time           | Type       | Crypto | Amount | From/To     | Status");
             System.out.println("-------------------|------------|--------|------------|-------------|-----------");
 
             for (Transaction tx : transactions) {
@@ -574,15 +574,15 @@ public class App {
             System.out.println(
                     "---------------------------------------------------------------------------------------------------");
         } catch (SQLException e) {
-            System.err.println("\nERRO ao buscar extrato: " + e.getMessage());
+            System.err.println("\nERROR fetching statement: " + e.getMessage());
         }
     }
 
     private static String formatFromTo(Transaction tx) {
         if ("DEPOSIT".equals(tx.getType())) {
-            return "Depósito";
+            return "Deposit";
         } else if ("WITHDRAWAL".equals(tx.getType())) {
-            return "Saque";
+            return "Withdrawal";
         } else if ("TRANSFER".equals(tx.getType())) {
             Integer sourceId = tx.getSourceWalletId();
             Integer destId = tx.getDestinationWalletId();
@@ -598,33 +598,33 @@ public class App {
     }
 
     private static void handleEditUser() {
-        System.out.println("\n--- Editar Meus Dados ---");
+        System.out.println("\n--- Edit My Profile ---");
         Optional<Users> userOpt = Optional.empty();
 
         try {
             userOpt = usersDao.findById(loggedInUser.getId());
         } catch (SQLException e) {
-            System.err.println("ERRO ao buscar dados do usuário para edição: " + e.getMessage());
+            System.err.println("ERROR fetching user data for editing: " + e.getMessage());
             return;
         }
 
         if (!userOpt.isPresent()) {
-            System.err.println("ERRO: Não foi possível encontrar os dados do usuário logado.");
+            System.err.println("ERROR: Could not find logged-in user data.");
             handleLogout();
             return;
         }
 
         Users currentUser = userOpt.get();
 
-        System.out.println("Deixe em branco para não alterar.");
+        System.out.println("Leave blank to keep unchanged.");
 
-        System.out.print("Novo nome [" + currentUser.getUserName() + "]: ");
+        System.out.print("New name [" + currentUser.getUserName() + "]: ");
         String newName = scanner.nextLine();
 
         String newEmail;
 
         do {
-            System.out.print("Novo email [" + currentUser.getEmail() + "]: ");
+            System.out.print("New email [" + currentUser.getEmail() + "]: ");
             newEmail = scanner.nextLine();
 
             if (newEmail.trim().isEmpty()) {
@@ -633,30 +633,30 @@ public class App {
             }
 
             if (!ValidationUtil.isValidEmail(newEmail)) {
-                System.out.println("\nERRO: Formato de email inválido. Por favor, insira um email válido.");
+                System.out.println("\nERROR: Invalid email format. Please enter a valid email.");
                 continue;
             }
 
             try {
                 Optional<Users> existingUser = usersDao.findByEmail(newEmail);
                 if (existingUser.isPresent() && existingUser.get().getId() != currentUser.getId()) {
-                    System.out.println("\nERRO: Este email já está em uso por outro usuário.");
+                    System.out.println("\nERROR: This email is already in use by another user.");
                     continue;
                 }
                 break;
             } catch (SQLException e) {
-                System.err.println("\nERRO ao verificar email: " + e.getMessage());
+                System.err.println("\nERROR checking email: " + e.getMessage());
                 return;
             }
         } while (true);
 
-        System.out.print("Novo telefone [" + currentUser.getPhoneNumber() + "]: ");
+        System.out.print("New phone [" + currentUser.getPhoneNumber() + "]: ");
         String newPhoneNumber = scanner.nextLine();
 
         String newPassword;
 
         do {
-            System.out.print("Nova senha (deixe em branco para não alterar): ");
+            System.out.print("New password (leave blank to keep current): ");
             newPassword = scanner.nextLine();
 
             if (newPassword.trim().isEmpty()) {
@@ -665,14 +665,14 @@ public class App {
             }
 
             if (!ValidationUtil.isStrongPassword(newPassword)) {
-                System.out.println("\nERRO: A senha não atende aos requisitos mínimos de segurança.");
+                System.out.println("\nERROR: Password does not meet the minimum security requirements.");
                 System.out.println(ValidationUtil.getPasswordRequirements());
                 continue;
             }
             break;
         } while (true);
 
-        System.out.print("Manter usuário ativo? (S/N) [" + (currentUser.isActive() ? "S" : "N") + "]: ");
+        System.out.print("Keep user active? (Y/N) [" + (currentUser.isActive() ? "Y" : "N") + "]: ");
         String activeInput = scanner.nextLine();
 
         if (newName != null && !newName.trim().isEmpty()) {
@@ -690,32 +690,32 @@ public class App {
         }
 
         if (activeInput != null && !activeInput.trim().isEmpty()) {
-            currentUser.setActive(activeInput.trim().equalsIgnoreCase("S"));
+            currentUser.setActive(activeInput.trim().equalsIgnoreCase("Y") || activeInput.trim().equalsIgnoreCase("S"));
         }
 
         try {
             usersDao.update(currentUser);
-            System.out.println("\nDados atualizados com sucesso!");
+            System.out.println("\nData updated successfully!");
             loggedInUser = currentUser;
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao atualizar usuário: " + e.getMessage());
+            System.err.println("\nERROR in the database while updating user: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            System.err.println("\nERRO de Validação: " + e.getMessage());
+            System.err.println("\nValidation ERROR: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante a atualização: " + e.getMessage());
+            System.err.println("\nUnexpected error during update: " + e.getMessage());
         }
     }
 
     private static void handleDeleteUser() {
-        System.out.println("\n--- Deletar Minha Conta ---");
-        System.out.println("!!! ATENÇÃO !!! Esta ação é irreversível e apagará seu usuário e sua carteira.");
-        System.out.print("Digite sua senha atual para confirmar a exclusão: ");
+        System.out.println("\n--- Delete My Account ---");
+        System.out.println("!!! WARNING !!! This action is irreversible and will delete your user and wallet.");
+        System.out.print("Enter your current password to confirm deletion: ");
         String confirmPassword = scanner.nextLine();
 
         try {
             Optional<Users> userOpt = usersDao.findById(loggedInUser.getId());
             if (!userOpt.isPresent()) {
-                System.err.println("ERRO: Usuário não encontrado.");
+                System.err.println("ERROR: User not found.");
                 handleLogout();
                 return;
             }
@@ -723,15 +723,15 @@ public class App {
             Users userToDelete = userOpt.get();
 
             if (!usersDao.checkPassword(confirmPassword, userToDelete.getPassword())) {
-                System.out.println("\nERRO: Senha de confirmação incorreta.");
+                System.out.println("\nERROR: Confirmation password is incorrect.");
                 return;
             }
 
-            System.out.print("Confirmação final. Tem certeza que deseja deletar sua conta? (S/N): ");
+            System.out.print("Final confirmation. Are you sure you want to delete your account? (Y/N): ");
             String confirm = scanner.nextLine();
 
-            if (!"S".equalsIgnoreCase(confirm)) {
-                System.out.println("\nExclusão cancelada.");
+            if (!confirm.equalsIgnoreCase("Y") && !confirm.equalsIgnoreCase("S")) {
+                System.out.println("\nAccount deletion cancelled.");
                 return;
             }
 
@@ -744,7 +744,7 @@ public class App {
                 walletDao.delete(loggedInWallet.getId());
                 usersDao.delete(userToDelete.getId());
                 connection.commit();
-                System.out.println("\nUsuário e carteira deletados com sucesso.");
+                System.out.println("\nUser and wallet deleted successfully.");
                 handleLogout();
 
             } catch (Exception e) {
@@ -752,7 +752,7 @@ public class App {
                     try {
                         connection.rollback();
                     } catch (SQLException rollbackEx) {
-                        System.err.println("ERRO ao reverter transação: " + rollbackEx.getMessage());
+                        System.err.println("ERROR rolling back transaction: " + rollbackEx.getMessage());
                     }
                 }
                 throw e;
@@ -762,59 +762,59 @@ public class App {
                         connection.setAutoCommit(true);
                         connection.close();
                     } catch (SQLException closeEx) {
-                        System.err.println("ERRO ao fechar conexão: " + closeEx.getMessage());
+                        System.err.println("ERROR closing connection: " + closeEx.getMessage());
                     }
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println("\nERRO no Banco de Dados ao tentar deletar usuário: " + e.getMessage());
+            System.err.println("\nERROR in the database while attempting to delete user: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("\nERRO inesperado durante a exclusão: " + e.getMessage());
+            System.err.println("\nUnexpected error during deletion: " + e.getMessage());
         }
     }
 
     private static void handleListAllUsers() {
-        System.out.println("\n--- Lista de Todos os Usuários (Apenas Teste) ---");
+        System.out.println("\n--- List of All Users (Test Only) ---");
 
         try {
             List<Users> allUsers = usersDao.findAll();
 
             if (allUsers.isEmpty()) {
-                System.out.println("Nenhum usuário registrado no sistema.");
+                System.out.println("No users registered in the system.");
             } else {
                 System.out.println("-----------------------------------------------------");
-                System.out.println(" ID | Nome                 | Email                | Ativo");
+                System.out.println(" ID | Name                 | Email                | Active");
                 System.out.println("----|----------------------|----------------------|-------");
                 for (Users u : allUsers) {
                     System.out.printf(" %-2d | %-20s | %-20s | %s\n",
                             u.getId(),
                             u.getUserName().length() > 20 ? u.getUserName().substring(0, 17) + "..." : u.getUserName(),
                             u.getEmail().length() > 20 ? u.getEmail().substring(0, 17) + "..." : u.getEmail(),
-                            u.isActive() ? "Sim" : "Não");
+                            u.isActive() ? "Yes" : "No");
                 }
                 System.out.println("-----------------------------------------------------");
             }
         } catch (SQLException e) {
-            System.err.println("\nERRO ao listar usuários: " + e.getMessage());
+            System.err.println("\nERROR listing users: " + e.getMessage());
         }
     }
 
     private static BigDecimal readAmount(String operation) {
-        System.out.print("Digite a quantidade a " + operation + " (ex: 0.05): ");
+        System.out.print("Enter the amount to " + operation + " (e.g. 0.05): ");
 
         try {
             BigDecimal amount = scanner.nextBigDecimal();
             scanner.nextLine();
 
             if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("\nERRO: A quantidade deve ser um valor positivo.");
+                System.out.println("\nERROR: The amount must be a positive value.");
                 return null;
             }
 
             return amount;
         } catch (InputMismatchException e) {
-            System.out.println("\nERRO: Quantidade digitada inválida.");
+            System.out.println("\nERROR: Invalid amount entered.");
             scanner.nextLine();
             return null;
         }
@@ -825,13 +825,13 @@ public class App {
             List<WalletEntry> entries = walletEntryDao.findByWalletId(loggedInWallet.getId());
 
             if (entries.isEmpty()) {
-                System.out.println("Você não possui saldo em nenhuma criptomoeda para " + operation + ".");
+                System.out.println("You do not have any cryptocurrency balance available for " + operation + ".");
                 return null;
             }
 
-            System.out.println("Criptomoedas disponíveis para " + operation + ":");
+            System.out.println("Cryptocurrencies available for " + operation + ":");
             System.out.println("---------------------");
-            System.out.println(" # | Cripto | Saldo");
+            System.out.println(" # | Crypto | Balance");
             System.out.println("---------------------");
 
             for (int i = 0; i < entries.size(); i++) {
@@ -845,17 +845,17 @@ public class App {
             System.out.println("---------------------");
             return entries;
         } catch (SQLException e) {
-            System.err.println("\nERRO ao buscar saldos: " + e.getMessage());
+            System.err.println("\nERROR fetching balances: " + e.getMessage());
             return null;
         }
     }
 
     private static WalletEntry selectCrypto(List<WalletEntry> entries) {
-        System.out.print("Escolha o número da cripto: ");
+        System.out.print("Choose the crypto number: ");
         int choice = readOption();
 
         if (choice < 1 || choice > entries.size()) {
-            System.out.println("\nOpção de cripto inválida.");
+            System.out.println("\nInvalid crypto option.");
             return null;
         }
 
